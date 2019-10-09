@@ -1,0 +1,107 @@
+#
+# Text for string output
+#
+msgid "period.start"
+msgStr "Start"
+ 
+msgid "period.end"
+msgStr "End"
+ 
+msgid "rotation.periods"
+msgStr "Rotation periods"
+
+msgid "rotation.start"
+msgStr "Rotation start"
+
+msgid "rotation.duration"
+msgStr "Rotation duration"
+
+msgid "rotation.days"
+msgStr "Days in rotation"
+
+msgid "rotation.working"
+msgStr "Scheduled working time"
+
+msgid "rotation.percentage"
+msgStr "Percentage worked"
+
+msgid "rotation.on"
+msgStr "on"
+
+msgid "rotation.off"
+msgStr "off"
+
+msgid "team.hours"
+msgStr "Average hours worked per week"
+
+msgid "breaks"
+msgStr "Breaks"
+
+msgid "team"
+msgStr "Team"
+
+msgid "shift"
+msgStr "Shift"
+
+msgid "schedule"
+msgStr "Schedule"
+
+msgid "schedule.working"
+msgStr "Scheduled working time"
+
+msgid "schedule.shifts"
+msgStr "Shifts"
+
+msgid "schedule.teams"
+msgStr "Teams"
+
+msgid "schedule.coverage"
+msgStr "Total team coverage"
+
+msgid "schedule.non"
+msgStr "Non-working periods"
+
+msgid "schedule.total"
+msgStr "Total non-working time"
+
+msgid "shifts.working"
+msgStr "Working shifts"
+
+msgid "shifts.day"
+msgStr "Day"
+
+msgid "shifts.non.working"
+msgStr "No working shifts"
+
+#
+# Text for exception messages
+#
+msgid "name.not.defined"
+msgStr "The name is not defined."
+
+msgid "start.not.defined"
+msgStr "The start time is not defined."
+
+msgid "duration.not.defined"
+msgStr "The duration is not defined."
+
+msgid "duration.not.allowed"
+msgStr "The duration must be 24 hours or less."
+
+msgid "end.earlier.than.start"
+msgStr "Starting time of {0} must be earlier than {1}."
+
+msgid "team.already.exists"
+msgStr "Team {0} has already been created."
+
+msgid "shift.already.exists"
+msgStr "Shift {0} has already been created."
+
+msgid "shift.in.use"
+msgStr "Shift {0} is being used in a work schedule."
+
+msgid "nonworking.period.already.exists"
+msgStr "Non-working period {0} has already been created."
+
+msgid "shift.spans.midnight"
+msgStr "Shift {0} spans midnight and the working time between {1} and {2} is ambiguous."
