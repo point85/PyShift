@@ -105,3 +105,6 @@ msgStr "Non-working period {0} has already been created."
 
 msgid "shift.spans.midnight"
 msgStr "Shift {0} spans midnight and the working time between {1} and {2} is ambiguous."
+
+msgId "no.starting.shift"
+msgStr "The starting shift must be specified."
