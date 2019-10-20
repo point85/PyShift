@@ -1,6 +1,10 @@
+from datetime import datetime
+from datetime import timedelta
+
 from PyShift.workschedule.named import Named
-from builtins import None
-#from math import remainder
+from PyShift.workschedule.shift_utils import ShiftUtils
+from PyShift.workschedule.localizer import Localizer
+from PyShift.workschedule.shift import ShiftInstance
 
 ##
 # Class Team is a named group of individuals who rotate through a shift
@@ -10,18 +14,15 @@ class Team(Named):
     def __init__(self, name=None, description=None, rotation=None, rotationStart=None):
         super().__init__(name, description)
         
+        # owning work schedule
+        self.workSchedule = None
+        
         # shift rotation days
         self.rotation = rotation
         
         # reference date for starting the rotations
         self.rotationStart = rotationStart
         
-        # owning work schedule
-        self.workSchedule = None
-
-    #def getDayFrom(self):
-    #    return ShiftUtils.toEpochDay(self.rotationStart)
-
     ##
     # Get the duration of the shift rotation
     # 
@@ -29,7 +30,7 @@ class Team(Named):
     #
     def getRotationDuration(self):
         return self.rotation.getDuration()
-
+    
     ##
     # Get the shift rotation's working time as a percentage of the rotation
     # duration
@@ -38,9 +39,9 @@ class Team(Named):
     #
     def getPercentageWorked(self):
         num = timedelta(seconds=self.rotation.getWorkingTime())
-        denom = timedelta(seconds=self.getRotationDuration())
-        return (num / denom) * 100
-
+        denom = timedelta(seconds=self.getRotationDuration()) 
+        return (num / denom) * 100.0
+    
     ##
     # Get the average number of hours worked each week by this team
     # 
@@ -99,33 +100,25 @@ class Team(Named):
 
         return instance
 
-
     ##
     # Check to see if this day is a day off
     # 
     # @param day
     #            Date to check
     # @return True if a day off
-    # @throws Exception
-    #             Exception
     #
-    boolean isDayOff(LocalDate day):
+    def isDayOff(self, day):
+        dayOff = False
 
-        boolean dayOff = false
-
-        Rotation shiftRotation = getRotation()
-        dayInRotation = getDayInRotation(day)
+        dayInRotation = self.getDayInRotation(day)
 
         # shift or off shift
-        TimePeriod period = shiftRotation.getPeriods().get(dayInRotation - 1)
+        period = self.rotation.periods[dayInRotation - 1]
 
-        if (!period.isWorkingPeriod()):
-            dayOff = true
-    
+        if (not period.isWorkingPeriod()):
+            dayOff = True
 
         return dayOff
-
-
 
     ##
     # Calculate the schedule working time between the specified dates and times
@@ -135,129 +128,90 @@ class Team(Named):
     # @param to
     #            Ending date and time of day
     # @return Duration of working time
-    # @throws Exception
-    #             exception
     #
-    Duration calculateWorkingTime(LocalDateTime from, LocalDateTime to):
-        if (from.isAfter(to)):
-            String msg = MessageFormat.format(WorkSchedule.getMessage("end.earlier.than.start"), to, from)
-            throw new Exception(msg)
+    def calculateWorkingTime(self, fromTime, toTime):
+        if (fromTime > toTime):
+            msg = Localizer.instance().langStr("end.earlier.than.start").format(toTime, fromTime)
+            raise Exception(msg)
     
+        timeSum = timedelta(seconds=0)
 
-        Duration sum = Duration.ZERO
-
-        LocalDate thisDate = from.toLocalDate()
-        LocalTime thisTime = from.toLocalTime()
-        LocalDate toDate = to.toLocalDate()
-        LocalTime toTime = to.toLocalTime()
-        dayCount = getRotation().getDayCount()
+        thisDate = fromTime.date()
+        thisTime = fromTime.time()
+        toDate = toTime.date()
+        toTime = toTime.time()
+        dayCount = self.rotation.getDayCount()
 
         # get the working shift from yesterday
-        Shift lastShift = null
+        lastShift = None
 
-        LocalDate yesterday = thisDate.plusDays(-1)
-        ShiftInstance yesterdayInstance = getShiftInstanceForDay(yesterday)
+        yesterday = thisDate - timedelta(days=1)
+        yesterdayInstance = self.getShiftInstanceForDay(yesterday)
 
-        if (yesterdayInstance != null):
-            lastShift = yesterdayInstance.getShift()
+        if (yesterdayInstance is not None):
+            lastShift = yesterdayInstance.shift
     
-
         # step through each day until done
-        while (thisDate.compareTo(toDate) < 1):
-            if (lastShift != null && lastShift.spansMidnight()):
+        while (thisDate < toDate):
+            if (lastShift is not None and lastShift.spansMidnight()):
                 # check for days in the middle of the time period
-                boolean lastDay = thisDate.compareTo(toDate) == 0 ? true : false
+                lastDay = True if (thisDate == toDate) else False
                 
-                if (!lastDay || (lastDay && !toTime.equals(LocalTime.MIDNIGHT))):
+                if (not lastDay or (lastDay and toTime.seconds() != 0)):
                     # add time after midnight in this day
                     afterMidnightSecond = lastShift.getEnd().toSecondOfDay()
                     fromSecond = thisTime.toSecondOfDay()
 
                     if (afterMidnightSecond > fromSecond):
-                        sum = sum.plusSeconds(afterMidnightSecond - fromSecond)
-                
-            
-        
+                        timeSum = timeSum + timedelta(seconds=(afterMidnightSecond - fromSecond))
 
             # today's shift
-            ShiftInstance instance = getShiftInstanceForDay(thisDate)
+            instance = self.getShiftInstanceForDay(thisDate)
 
-            Duration duration = null
+            duration = None
 
-            if (instance != null):
-                lastShift = instance.getShift()
+            if (instance is not None):
+                lastShift = instance.shift
                 # check for last date
-                if (thisDate.compareTo(toDate) == 0):
-                    duration = lastShift.calculateWorkingTime(thisTime, toTime, true)
-             else:
-                    duration = lastShift.calculateWorkingTime(thisTime, LocalTime.MAX, true)
+                if (thisDate == toDate):
+                    duration = lastShift.calculateWorkingTime(thisTime, toTime, True)
+                else:
+                    duration = lastShift.calculateWorkingTime(thisTime, datetime.max.time(), True)
             
-                sum = sum.plus(duration)
-         else:
-                lastShift = null
-        
+                timeSum = timeSum + duration
+            else:
+                lastShift = None
 
             n = 1
-            if (getDayInRotation(thisDate) == dayCount):
+            if (self.getDayInRotation(thisDate) == dayCount):
                 # move ahead by the rotation count if possible
-                LocalDate rotationEndDate = thisDate.plusDays(dayCount)
+                rotationEndDate = thisDate + timedelta(days=dayCount)
 
-                if (rotationEndDate.compareTo(toDate) < 0):
+                if (rotationEndDate < toDate):
                     n = dayCount
-                    sum = sum.plus(getRotation().getWorkingTime())
-            
-        
+                    timeSum = timeSum + self.rotation.getWorkingTime()
 
             # move ahead n days starting at midnight
-            thisDate = thisDate.plusDays(n)
-            thisTime = LocalTime.MIDNIGHT
-     # end day loop
+            thisDate = thisDate + timedelta(days=n)
+            thisTime = datetime.min.time()
+        # end day loop
 
-        return sum
-
-
-    ##
-    # Get the work schedule that owns this team
-    # 
-    # @return {@link WorkSchedule}
-    #
-    WorkSchedule getWorkSchedule():
-        return workSchedule
-
-
-    void setWorkSchedule(WorkSchedule workSchedule):
-        self.workSchedule = workSchedule
-
-
-    ##
-    # Compare one team to another
-    #
-    @Override
-    compareTo(Team other):
-        return self.getName().compareTo(other.getName())
-
-
+        return timeSum
+    
     ##
     # Build a string value for this team
     #
-    @Override
-    String toString():
-        String rpct = WorkSchedule.getMessage("rotation.percentage")
-        DecimalFormat df = new DecimalFormat()
-        df.setMaximumFractionDigits(2)
+    def __str__(self):
+        rpct = Localizer.instance().langStr("rotation.percentage")
+        rs = Localizer.instance().langStr("rotation.start")
+        avg = Localizer.instance().langStr("team.hours")
+        worked = rpct + ": %.2f" % self.getPercentageWorked()
 
-        String rs = WorkSchedule.getMessage("rotation.start")
-        String avg = WorkSchedule.getMessage("team.hours")
-
-        String text = ""
+        text = ""
         try:
-            text = super.toString() + ", " + rs + ": " + getRotationStart() + ", " + getRotation() + ", " + rpct + ": "
-                    + df.format(getPercentageWorked()) + "%" + ", " + avg + ": " + getHoursWorkedPerWeek()
-
-     catch (Exception e):
-            # ignore
+            text = super().__str__() + ", " + rs + ": " + self.getRotationStart() + ", " + self.getRotation() + ", " + worked + "%" 
+            + ", " + avg + ": " + self.getHoursWorkedPerWeek()
+        except:
+            pass
     
-
         return text
-
-}
