@@ -1,9 +1,10 @@
+from datetime import timedelta
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift import Shift
 from PyShift.workschedule.team import Team
 from PyShift.workschedule.non_working_period import NonWorkingPeriod
-from datetime import timedelta
+from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
 # Class WorkSchedule represents a named group of teams who collectively work
@@ -213,7 +214,7 @@ class WorkSchedule(Named):
     def getRotationWorkingTime(self):
         timeSum = timedelta()
 
-        for team in teams:
+        for team in self.teams:
             timeSum = timeSum + team.rotation.getWorkingTime()
     
         return timeSum
@@ -330,91 +331,62 @@ class WorkSchedule(Named):
     # Build a string value for the work schedule
     # 
     # @return String
+    def __str__(self):
+        sch = Localizer.instance().langStr("schedule")
+        rd = Localizer.instance().langStr("rotation.duration")
+        sw = Localizer.instance().langStr("schedule.working")
+        sf = Localizer.instance().langStr("schedule.shifts")
+        st = Localizer.instance().langStr("schedule.teams")
+        sc = Localizer.instance().langStr("schedule.coverage")
+        sn = Localizer.instance().langStr("schedule.non")
+        stn = Localizer.instance().langStr("schedule.total")
 
-    @Override
-    def toString():
-        DecimalFormat df = DecimalFormat()
-        df.setMaximumFractionDigits(2)
-        sch = getMessage("schedule")
-        rd = getMessage("rotation.duration")
-        sw = getMessage("schedule.working")
-        sf = getMessage("schedule.shifts")
-        st = getMessage("schedule.teams")
-        sc = getMessage("schedule.coverage")
-        sn = getMessage("schedule.non")
-        stn = getMessage("schedule.total")
-
-        text = sch + ": " + super.toString()
+        text = sch + ": " + super().__str__()
         try:
-            text += "\n" + rd + ": " + getRotationDuration() + ", " + sw + ": " + getRotationWorkingTime()
+            text = text + "\n" + rd + ": " + self.getRotationDuration() + ", " + sw + ": " + self.getRotationWorkingTime()
 
             # shifts
-            text += "\n" + sf + ": "
-            int count = 1
-            for (shift : getShifts()):
-                text += "\n   (" + count + ") " + shift
-                count++
-        
-
-            # teams
-            text += "\n" + st + ": "
+            text = text + "\n" + sf + ": "
             count = 1
-            float teamPercent = 0.0f
-            for (team : self.getTeams()):
-                text += "\n   (" + count + ") " + team
-                teamPercent += team.getPercentageWorked()
-                count++
+            for shift in self.shifts:
+                text = text + "\n   (" + str(count) + ") " + str(shift)
+                count = count + 1
+                
+            # teams
+            text = text + "\n" + st + ": "
+            count = 1
+            teamPercent = 0.0
+            
+            for team in self.teams:
+                text = text + "\n   (" + str(count) + ") " + str(team)
+                teamPercent = teamPercent + team.getPercentageWorked()
+                count = count + 1
         
-            text += "\n" + sc + ": " + df.format(teamPercent) + "%"
+            fmtTeam = ": %.2f" % teamPercent
+            text = text + "\n" + sc + ": " + fmtTeam + "%"
 
             # non-working periods
-            List<NonWorkingPeriod> periods = getNonWorkingPeriods()
+            periods = self.getNonWorkingPeriods()
 
-            if (periods.size() > 0):
-                text += "\n" + sn + ":"
+            if (len(periods) > 0):
+                text = text + "\n" + sn + ":"
 
-                totalMinutes = Duration.ZERO
+                totalMinutes = timedelta()
 
                 count = 1
-                for (period : periods):
-                    totalMinutes = totalMinutes.plusMinutes(period.getDuration().toMinutes())
-                    text += "\n   (" + count + ") " + period
-                    count++
+                for period in periods:
+                    totalMinutes = totalMinutes + period.minutes()
+                    text = text + "\n   (" + str(count) + ") " + str(period)
+                    count = count + 1
             
-                text += "\n" + stn + ": " + totalMinutes
+                text = text + "\n" + stn + ": " + str(totalMinutes)
         
-     catch (Exception e):
-            # ignore
-    
+        except:
+            pass
 
         return text
-
-
-    ##
-    # Get the optimistic locking version
-    # 
-    # @return version
-
-    def Integer getVersion():
-        return version
-
-
-    ##
-    # Set the optimistic locking version
-    # 
-    # @param version
-    #            Version
-
-    def setVersion(Integer version):
-        self.version = version
-
-
-    ##
-    # Compare one work schedule to another
-
-    @Override
-    def int compareTo(WorkSchedule other):
-        return getName().compareTo(other.getName())
+    
+    
 
         
     

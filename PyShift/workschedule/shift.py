@@ -1,4 +1,4 @@
-from _datetime import timedelta
+from datetime import timedelta
 
 from PyShift.workschedule.time_period import TimePeriod
 from PyShift.workschedule.work_break import Break
@@ -8,9 +8,6 @@ from builtins import staticmethod
 ##
 # Class Shift is a scheduled working time period, and can include breaks.
 # 
-# @author Kent Randall
-#
-#
 class Shift(TimePeriod):
     def __init__(self, name, description, start, duration):
         super().__init__(name, description, start, duration)

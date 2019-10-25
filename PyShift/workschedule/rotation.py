@@ -124,8 +124,7 @@ class Rotation(Named):
                 periods = periods + ", "
             
             onOff = on if period.isWorkingPeriod() else off
-            periods = periods + period.name + " (" + str(onOff) + ")"
-        
+            periods = periods + period.name + " (" + str(onOff) + ")"  
 
         text = named + "\n" + rper + ": [" + periods+ "], " + rd + ": " + self.getDuration() + ", " + rda + ": " + timedelta(days=self.getDuration()) + ", " + rw + ": " + self.getWorkingTime()
 
