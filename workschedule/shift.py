@@ -3,6 +3,7 @@ from datetime import timedelta
 from PyShift.workschedule.time_period import TimePeriod
 from PyShift.workschedule.work_break import Break
 from PyShift.workschedule.localizer import Localizer
+from PyShift.workschedule.shift_exception import PyShiftException
 from builtins import staticmethod
 
 ##
@@ -11,8 +12,6 @@ from builtins import staticmethod
 class Shift(TimePeriod):
     def __init__(self, name, description, start, duration):
         super().__init__(name, description, start, duration)
-        
-        self.workSchedule = None
         self.breaks = []
 
     ##
@@ -23,7 +22,7 @@ class Shift(TimePeriod):
     #
     def addBreak(self, breakPeriod):
         if (breakPeriod not in self.breaks):
-            self.breaks.add(breakPeriod)
+            self.breaks.append(breakPeriod)
 
     ##
     # Remove a break from this shift
@@ -79,7 +78,7 @@ class Shift(TimePeriod):
     def calculateWorkingTime(self, fromTime, toTime):
         if (self.spansMidnight()):
             msg = Localizer.instance().langStr("shift.spans.midnight").format(self.name, fromTime, toTime)
-            raise Exception(msg)
+            raise PyShiftException(msg)
     
         return self.calculateTotalWorkingTime(fromTime, toTime, True)
 
@@ -151,7 +150,7 @@ class Shift(TimePeriod):
         
         if (firstTime < secondTime):
             value = -1
-        elif (firstTime < secondTime):
+        elif (firstTime > secondTime):
             value = 1
         return value
         
@@ -268,6 +267,15 @@ class ShiftInstance:
         elif (self.startDateTime > other.startDateTime):
             value = 1
         return value
+    
+    ##
+    # Determine if this time falls within the shift instance period
+    # 
+    # @param dateTime Date and time to check
+    # @return True if the specified time is in this shift instance
+    #
+    def isInShiftInstance(self, dateTime):
+        return (dateTime.compareTo(self.startDateTime) >= 0 and dateTime.compareTo(self.getEndTime()) <= 0)
 
     ##
     # Build a string representation of a shift instance

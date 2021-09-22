@@ -1,9 +1,6 @@
 from datetime import datetime, date, time, timedelta
 from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
-from PyShift.workschedule.shift import Shift
-from PyShift.workschedule.team import Team
-from PyShift.workschedule.rotation import Rotation
 
 class TestSnapSchedule(BaseTest):
 
@@ -17,7 +14,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(23, 0, 0), timedelta(hours=8))
 
         # Team rotation
-        rotation = Rotation("Low night demand", "Low night demand")
+        rotation = schedule.createschedule.createRotation("Low night demand", "Low night demand")
         rotation.addSegment(day, 3, 0)
         rotation.addSegment(swing, 4, 3)
         rotation.addSegment(day, 4, 0)
@@ -35,7 +32,7 @@ class TestSnapSchedule(BaseTest):
         schedule.createTeam("Team5", "Fifth team", rotation, self.referenceDate - timedelta(days=14))
         schedule.createTeam("Team6", "Sixth team", rotation, self.referenceDate - timedelta(days=35))
 
-        self.self.runBaseTest(schedule, timedelta(hours=224), timedelta(days=42), self.referenceDate)
+        self.runBaseTest(schedule, timedelta(hours=224), timedelta(days=42), self.referenceDate)
 
     def test3TeamFixed24(self):
         description = "Fire departments"
@@ -45,7 +42,7 @@ class TestSnapSchedule(BaseTest):
         shift = schedule.createShift("24 Hour", "24 hour shift", time(0, 0, 0), timedelta(hours=24))
 
         # Team rotation
-        rotation = Rotation("3 Team Fixed 24 Plan", "3 Team Fixed 24 Plan")
+        rotation = schedule.createschedule.createRotation("3 Team Fixed 24 Plan", "3 Team Fixed 24 Plan")
         rotation.addSegment(shift, 1, 1)
         rotation.addSegment(shift, 1, 1)
         rotation.addSegment(shift, 1, 4)
@@ -68,7 +65,7 @@ class TestSnapSchedule(BaseTest):
         day2 = schedule.createShift("Day2", "Day shift #2", time(7, 0, 0), timedelta(hours=8))
 
         # Team rotation (28 days)
-        rotation = Rotation("5/4/9 ", "5/4/9 ")
+        rotation = schedule.createschedule.createRotation("5/4/9 ", "5/4/9 ")
         rotation.addSegment(day1, 4, 0)
         rotation.addSegment(day2, 1, 3)
         rotation.addSegment(day1, 4, 3)
@@ -90,7 +87,7 @@ class TestSnapSchedule(BaseTest):
         day = schedule.createShift("Day", "Day shift", time(9, 0, 0), timedelta(hours=8))
 
         # Team1 rotation (5 days)
-        rotation = Rotation("9 To 5 ", "9 To 5 ")
+        rotation = schedule.createschedule.createRotation("9 To 5 ", "9 To 5 ")
         rotation.addSegment(day, 5, 2)
 
         # 1 team, 1 shift
@@ -118,7 +115,7 @@ class TestSnapSchedule(BaseTest):
         night2 = schedule.createShift("Night2", "Night shift #2", time(23, 0, 0), timedelta(hours=8))
 
         # shift rotation (28 days)
-        rotation = Rotation("8 Plus 12", "8 Plus 12")
+        rotation = schedule.createschedule.createRotation("8 Plus 12", "8 Plus 12")
         rotation.addSegment(day2, 5, 0)
         rotation.addSegment(day1, 2, 3)
         rotation.addSegment(night2, 2, 0)
@@ -152,7 +149,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(22, 0, 0), timedelta(hours=14))
 
         # Team1 rotation
-        rotation = Rotation("ICU", "ICU")
+        rotation = schedule.createschedule.createRotation("ICU", "ICU")
         rotation.addSegment(day, 1, 0)
         rotation.addSegment(crossover, 1, 0)
         rotation.addSegment(night, 1, 1)
@@ -180,7 +177,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
         # Team1 rotation
-        rotation = Rotation("DuPont", "DuPont")
+        rotation = schedule.createschedule.createRotation("DuPont", "DuPont")
         rotation.addSegment(night, 4, 3)
         rotation.addSegment(day, 3, 1)
         rotation.addSegment(night, 3, 3)
@@ -206,7 +203,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
         # rotation
-        rotation = Rotation("DNO", "DNO")
+        rotation = schedule.createRotation("DNO", "DNO")
         rotation.addSegment(day, 1, 0)
         rotation.addSegment(night, 1, 1)
 
@@ -223,11 +220,11 @@ class TestSnapSchedule(BaseTest):
         self.runBaseTest(schedule, timedelta(hours=24), timedelta(days=3), self.referenceDate)
 
     def test21TeamFixed(self):
-        description = "This plan is a fixed (no rotation) plan that uses 21 teams and three 8-hr shifts to provide 24/7 coverage. "
-                + "It maximizes the number of consecutive days off while still averaging 40 hours per week. "
-                + "Over a 7 week cycle, each employee has two 3 consecutive days off and is required to work 6 consecutive days on 5 of the 7 weeks. "
-                + "On any given day, 15 teams will be scheduled to work and 6 teams will be off. "
-                + "Each shift will be staffed by 5 teams so the minimum number of employees per shift is five. "
+        description = "".join(["This plan is a fixed (no rotation) plan that uses 21 teams and three 8-hr shifts to provide 24/7 coverage. "
+        ,"It maximizes the number of consecutive days off while still averaging 40 hours per week. "
+        ,"Over a 7 week cycle, each employee has two 3 consecutive days off and is required to work 6 consecutive days on 5 of the 7 weeks. "
+        ,"On any given day, 15 teams will be scheduled to work and 6 teams will be off. "
+        ,"Each shift will be staffed by 5 teams so the minimum number of employees per shift is five. "])
 
         schedule = WorkSchedule("21 Team Fixed 8 6D Plan", description)
 
@@ -241,7 +238,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(23, 0, 0), timedelta(hours=8))
 
         # day rotation
-        day= Rotation("Day", "Day")
+        dayRotation = schedule.createRotation("Day", "Day")
         dayRotation.addSegment(day, 6, 3)
         dayRotation.addSegment(day, 5, 3)
         dayRotation.addSegment(day, 6, 2)
@@ -250,7 +247,7 @@ class TestSnapSchedule(BaseTest):
         dayRotation.addSegment(day, 6, 2)
 
         # swing rotation
-        swing= Rotation("Swing", "Swing")
+        swingRotation = schedule.createRotation("Swing", "Swing")
         swingRotation.addSegment(swing, 6, 3)
         swingRotation.addSegment(swing, 5, 3)
         swingRotation.addSegment(swing, 6, 2)
@@ -259,7 +256,7 @@ class TestSnapSchedule(BaseTest):
         swingRotation.addSegment(swing, 6, 2)
 
         # night rotation
-        night= Rotation("Night", "Night")
+        nightRotation = schedule.createRotation("Night", "Night")
         nightRotation.addSegment(night, 6, 3)
         nightRotation.addSegment(night, 5, 3)
         nightRotation.addSegment(night, 6, 2)
@@ -294,14 +291,12 @@ class TestSnapSchedule(BaseTest):
         schedule.createTeam("Team 20", "6th night team", nightRotation, self.referenceDate.plusDays(35))
         schedule.createTeam("Team 21", "7th night team", nightRotation, self.referenceDate.plusDays(42))
 
-        self.runBaseTest(schedule, Duration.ofHours(280), Duration.ofDays(49), self.referenceDate.plusDays(49))
-
-
+        self.runBaseTest(schedule, timedelta(hours=280), timedelta(days=49), self.referenceDate.plusDays(49))
 
 
     def testTwoTeam(self):
-        description = "This is a fixed (no rotation) plan that uses 2 teams and two 12-hr shifts to provide 24/7 coverage. "
-                + "One team will be permanently on the day shift and the other will be on the night shift."
+        description = "".join(["This is a fixed (no rotation) plan that uses 2 teams and two 12-hr shifts to provide 24/7 coverage. "
+        ,"One team will be permanently on the day shift and the other will be on the night shift."])
 
         schedule = WorkSchedule("2 Team Fixed 12 Plan", description)
 
@@ -312,25 +307,24 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
         # Team1 rotation
-        team1= Rotation("Team1", "Team1")
+        team1Rotation = schedule.createRotation("Team1", "Team1")
         team1Rotation.addSegment(day, 1, 0)
 
         # Team1 rotation
-        team2= Rotation("Team2", "Team2")
+        team2Rotation = schedule.createRotation("Team2", "Team2")
         team2Rotation.addSegment(night, 1, 0)
 
         schedule.createTeam("Team 1", "First team", team1Rotation, self.referenceDate)
         schedule.createTeam("Team 2", "Second team", team2Rotation, self.referenceDate)
 
-        self.runBaseTest(schedule, timedelta(hours=12), Duration.ofDays(1), self.referenceDate)
-
+        self.runBaseTest(schedule, timedelta(hours=12), timedelta(days=1), self.referenceDate)
 
 
     def testPanama(self):
-        description = "This is a slow rotation plan that uses 4 teams and two 12-hr shifts to provide 24/7 coverage. "
-                + "The working and non-working days follow this pattern: 2 days on, 2 days off, 3 days on, 2 days off, 2 days on, 3 days off. "
-                + "Each team works the same shift (day or night) for 28 days then switches over to the other shift for the next 28 days. "
-                + "After 56 days, the same sequence starts over."
+        description = "".join(["This is a slow rotation plan that uses 4 teams and two 12-hr shifts to provide 24/7 coverage. "
+        , "The working and non-working days follow this pattern: 2 days on, 2 days off, 3 days on, 2 days off, 2 days on, 3 days off. "
+        , "Each team works the same shift (day or night) for 28 days then switches over to the other shift for the next 28 days. "
+        , "After 56 days, the same sequence starts over."])
 
         scheduleName = "Panama"
         schedule = WorkSchedule(scheduleName, description)
@@ -342,7 +336,7 @@ class TestSnapSchedule(BaseTest):
         night = schedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
         # rotation
-        rotation = Rotation("Panama",
+        rotation = schedule.createRotation("Panama",
                 "2 days on, 2 days off, 3 days on, 2 days off, 2 days on, 3 days off")
         # 2 days on, 2 off, 3 on, 2 off, 2 on, 3 off (and repeat)
         rotation.addSegment(day, 2, 2)
@@ -361,13 +355,11 @@ class TestSnapSchedule(BaseTest):
         rotation.addSegment(night, 2, 3)
 
         # reference date for start of shift rotations
-        LocalDate self.referenceDate = LocalDate.of(2016, 10, 31)
+        self.referenceDate = date(2016, 10, 31)
 
         schedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
         schedule.createTeam("Team 2", "Second team", rotation, self.referenceDate.minusDays(28))
         schedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=7))
         schedule.createTeam("Team 4", "Fourth team", rotation, self.referenceDate.minusDays(35))
 
-        self.runBaseTest(schedule, Duration.ofHours(336), Duration.ofDays(56), self.referenceDate)
-
-}
+        self.runBaseTest(schedule, timedelta(hours=336), timedelta(days=56), self.referenceDate)

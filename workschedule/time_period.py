@@ -1,13 +1,14 @@
-from abc import ABC
+#from abc import ABC
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
+from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
 # Class TimePeriod is a named period of time with a specified duration and
 # starting time of day.
 # 
-class TimePeriod(ABC, Named):
+class TimePeriod(Named):
     SECONDS_PER_DAY = 24 * 60 * 60
     
     def __init__(self, name, description, startTime, duration):
@@ -24,11 +25,11 @@ class TimePeriod(ABC, Named):
     def setDuration(self, duration):
         if (duration is None or duration.total_seconds() == 0):
             msg = Localizer.instance().langStr("duration.not.defined")
-            raise Exception(msg)
+            raise PyShiftException(msg)
         
         if (duration.total_seconds() > TimePeriod.SECONDS_PER_DAY):
             msg = Localizer.instance().langStr("duration.not.allowed")
-            raise Exception(msg)
+            raise PyShiftException(msg)
         
         self.duration = duration
     
@@ -49,7 +50,7 @@ class TimePeriod(ABC, Named):
     def setStartTime(self, startTime):
         if (startTime is None):
             msg = Localizer.instance().langStr("start.not.defined")
-            raise Exception(msg)
+            raise PyShiftException(msg)
         
         self.startTime = startTime
 

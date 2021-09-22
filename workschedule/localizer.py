@@ -14,7 +14,6 @@ class Localizer:
     def __init__(self):
         Localizer.localizer = self
         self.messages = None
-        self.units = None
                     
     @staticmethod
     def instance():
@@ -25,20 +24,20 @@ class Localizer:
     @staticmethod
     def getLC():
         # get the default locale and the language code
-        thisLocale = locale.getdefaultlocale("LANGUAGE")
+        thisLocale = locale.getdefaultlocale()
         langCC = thisLocale[0]
         return langCC
     
     ##
-    # Get the translated user-visible text for the default locale and country code 
+    # Get the translated error message text for the default locale and country code 
     # 
     # @param msgId Message identifier
-    # @return translated text  
-    def langStr(self, msgId):        
-        if (self.units is None):
-            # translated user-visible text for this locale  and country code
-            self.units = gettext.translation("lang", localedir=Localizer.localePath, languages=[Localizer.getLC()])
-            self.units.install()
-        
-        # Get a unit name, symbol or description by its id
-        return self.units.gettext(msgId)
+    # @return translated text    
+    def messageStr(self, msgId):
+        if (self.messages is None):
+            # translated text with error messages for this locale and country code
+            self.messages = gettext.translation("messages", localedir=Localizer.localePath, languages=[Localizer.getLC()])
+            self.messages.install()
+            
+        # Get an error message by its id
+        return self.messages.gettext(msgId)

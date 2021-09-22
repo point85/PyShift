@@ -1,0 +1,111 @@
+#
+# Text for string output
+#
+
+msgid "period.start"
+msgstr "Start"
+ 
+msgid "period.end"
+msgstr "End"
+ 
+msgid "rotation.periods"
+msgstr "Rotation periods"
+
+msgid "rotation.start"
+msgstr "Rotation start"
+
+msgid "rotation.duration"
+msgstr "Rotation duration"
+
+msgid "rotation.days"
+msgstr "Days in rotation"
+
+msgid "rotation.working"
+msgstr "Scheduled working time"
+
+msgid "rotation.percentage"
+msgstr "Percentage worked"
+
+msgid "rotation.on"
+msgstr "on"
+
+msgid "rotation.off"
+msgstr "off"
+
+msgid "team.hours"
+msgstr "Average hours worked per week"
+
+msgid "breaks"
+msgstr "Breaks"
+
+msgid "team"
+msgstr "Team"
+
+msgid "shift"
+msgstr "Shift"
+
+msgid "schedule"
+msgstr "Schedule"
+
+msgid "schedule.working"
+msgstr "Scheduled working time"
+
+msgid "schedule.shifts"
+msgstr "Shifts"
+
+msgid "schedule.teams"
+msgstr "Teams"
+
+msgid "schedule.coverage"
+msgstr "Total team coverage"
+
+msgid "schedule.non"
+msgstr "Non-working periods"
+
+msgid "schedule.total"
+msgstr "Total non-working time"
+
+msgid "shifts.working"
+msgstr "Working shifts"
+
+msgid "shifts.day"
+msgstr "Day"
+
+msgid "shifts.non.working"
+msgstr "No working shifts"
+
+#
+# Text for exception messages
+#
+msgid "name.not.defined"
+msgstr "The name is not defined."
+
+msgid "start.not.defined"
+msgstr "The start time is not defined."
+
+msgid "duration.not.defined"
+msgstr "The duration is not defined."
+
+msgid "duration.not.allowed"
+msgstr "The duration must be 24 hours or less."
+
+msgid "end.earlier.than.start"
+msgstr "Starting time of {0} must be earlier than {1}."
+
+msgid "team.already.exists"
+msgstr "Team {0} has already been created."
+
+msgid "shift.already.exists"
+msgstr "Shift {0} has already been created."
+
+msgid "shift.in.use"
+msgstr "Shift {0} is being used in a work schedule."
+
+msgid "nonworking.period.already.exists"
+msgstr "Non-working period {0} has already been created."
+
+msgid "shift.spans.midnight"
+msgstr "Shift {0} spans midnight and the working time between {1} and {2} is ambiguous."
+
+msgid "no.starting.shift"
+msgstr "The starting shift must be specified."

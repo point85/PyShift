@@ -1,6 +1,6 @@
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
-
+from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
 # Class NonWorkingPeriod represents named non-working, non-recurring periods.
@@ -8,7 +8,7 @@ from PyShift.workschedule.localizer import Localizer
 # maintenance.
 #
 class NonWorkingPeriod(Named):
-    def __init__(self, name=None, description=None, startDateTime=None, duration=None):
+    def __init__(self, name, description, startDateTime, duration):
         super().__init__(name, description)
         self.setStartDateTime(startDateTime)
         self.setDuration(duration)
@@ -22,7 +22,7 @@ class NonWorkingPeriod(Named):
     def setStartDateTime(self, startDateTime):
         if (startDateTime is None):
             msg = Localizer.instance().langStr("start.not.defined")
-            raise Exception(msg)
+            raise PyShiftException(msg)
 
         self.startDateTime = startDateTime
     
@@ -43,7 +43,7 @@ class NonWorkingPeriod(Named):
     def setDuration(self, duration):
         if (duration is None or duration.total_seconds() == 0):
             msg = Localizer.instance().langStr("duration.not.defined")
-            raise Exception(msg)
+            raise PyShiftException(msg)
 
         self.duration = duration
     

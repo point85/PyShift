@@ -5,18 +5,16 @@ from PyShift.workschedule.named import Named
 from PyShift.workschedule.shift_utils import ShiftUtils
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift import ShiftInstance
+from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
 # Class Team is a named group of individuals who rotate through a shift
 # schedule.
 # 
 class Team(Named):
-    def __init__(self, name=None, description=None, rotation=None, rotationStart=None):
+    def __init__(self, name, description, rotation, rotationStart):
         super().__init__(name, description)
-        
-        # owning work schedule
-        self.workSchedule = None
-        
+                
         # shift rotation days
         self.rotation = rotation
         
@@ -48,8 +46,8 @@ class Team(Named):
     # @return Duration of hours worked per week
     #
     def getHoursWorkedPerWeek(self):
-        days = timedelta(days=self.rotation.getDuration())
-        secPerWeek = timedelta(seconds = self.rotation.getWorkingTime()) * (7 / days)
+        deltaDays = timedelta(days=self.rotation.getDuration())
+        secPerWeek = timedelta(seconds = self.rotation.getWorkingTime()) * (7.0 / deltaDays.days)
         return timedelta(seconds=secPerWeek)
 
     ##
@@ -67,7 +65,7 @@ class Team(Named):
 
         if (deltaDays < 0):
             msg = Localizer.instance().langStr("end.earlier.than.start").format(self.rotationStart, date)
-            raise Exception(msg)
+            raise PyShiftException(msg)
         
         rotationDays = timedelta(days=self.rotation.duration)
         dayInRotation = (deltaDays % rotationDays) + 1
@@ -83,16 +81,16 @@ class Team(Named):
     def getShiftInstanceForDay(self, day):
         instance = None
         
-        shiftRotation = self.getRotation()
+        #shiftRotation = self.rotation
         
-        if (shiftRotation.duration == timedelta(seconds=0)):
+        if (self.rotation.duration == timedelta(seconds=0)):
             # no instance for that day
             return instance
     
         dayInRotation = self.getDayInRotation(day)
 
         # shift or off shift
-        period = shiftRotation.periods[dayInRotation - 1]
+        period = self.rotation.periods[dayInRotation - 1]
 
         if (period.isWorkingPeriod()):
             startDateTime = datetime(day.year(), day.month(), day.day(), period.startTime.hour(),period.startTime.minute(), period.startTime.second() )
@@ -132,7 +130,7 @@ class Team(Named):
     def calculateWorkingTime(self, fromTime, toTime):
         if (fromTime > toTime):
             msg = Localizer.instance().langStr("end.earlier.than.start").format(toTime, fromTime)
-            raise Exception(msg)
+            raise PyShiftException(msg)
     
         timeSum = timedelta(seconds=0)
 
@@ -199,6 +197,12 @@ class Team(Named):
         return timeSum
     
     ##
+    # Compare one team to another one
+    #
+    def compareTo(self, other):
+        return self.name == other.name
+    
+    ##
     # Build a string value for this team
     #
     def __str__(self):
@@ -209,8 +213,7 @@ class Team(Named):
 
         text = ""
         try:
-            text = super().__str__() + ", " + rs + ": " + self.getRotationStart() + ", " + self.getRotation() + ", " + worked + "%" 
-            + ", " + avg + ": " + self.getHoursWorkedPerWeek()
+            text = super().__str__() + ", " + rs + ": " + str(self.rotationStart) + ", " + str(self.rotation) + ", " + str(worked) + "%, " + str(avg) + ": " + str(self.getHoursWorkedPerWeek())
         except:
             pass
     

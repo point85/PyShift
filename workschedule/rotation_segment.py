@@ -10,7 +10,7 @@ class RotationSegment():
         self.daysOn = daysOn
         self.daysOff = daysOff
         self.rotation = rotation
-        self.segment = 0
+        self.sequence = 0
         
     ##
     # Compare two rotation segments

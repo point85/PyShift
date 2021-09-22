@@ -1,12 +1,14 @@
+import unittest
 from abc import ABC
+
 from datetime import datetime, date, timedelta
 from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
 # Base class for testing shift plans
 # 
-class BaseTest(ABC):     
-    def __init__(self):
+class BaseTest(ABC, unittest.TestCase):     
+    def setUp(self):
         # work schedule
         self.schedule = None
     
@@ -18,7 +20,7 @@ class BaseTest(ABC):
         self.testDeletions = True
 
     def testShifts(self, ws): 
-        self.self.assertTrue(len(ws.shifts) > 0)
+        self.assertTrue(len(ws.shifts) > 0)
 
         for shift in ws.shifts: 
             total = shift.duration
@@ -194,6 +196,9 @@ class BaseTest(ABC):
             self.testDeletions()
 
     def testDeletions(self): 
+        if (self.schedule is None):
+            return 
+        
         # team deletions
         teams = self.schedule.teams
 

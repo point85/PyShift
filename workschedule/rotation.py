@@ -4,6 +4,7 @@ from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.day_off import DayOff
 from PyShift.workschedule.rotation_segment import RotationSegment 
+from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
 # Class Rotation maintains a sequenced list of shift and off-shift time
@@ -12,7 +13,7 @@ from PyShift.workschedule.rotation_segment import RotationSegment
 class Rotation(Named):
     dayOff = None  
       
-    def __init__(self, name=None, description=None):
+    def __init__(self, name, description):
         super().__init__(name, description)
         self.rotationSegments = []
         self.periods = None
@@ -34,7 +35,7 @@ class Rotation(Named):
             self.periods = []
             
             # sort by sequence number
-            sorted(self.rotationSegments, key=RotationSegment.compareTo)
+            self.rotationSegments.sort(key=RotationSegment.compareTo)
 
             for segment in self.rotationSegments:
                 # add the on days
@@ -94,11 +95,11 @@ class Rotation(Named):
     def addSegment(self, startingShift, daysOn, daysOff):
         if (startingShift is None):
             msg = Localizer.instance().langStr("no.starting.shift")
-            raise Exception(msg)
+            raise PyShiftException(msg)
         
         segment = RotationSegment(startingShift, daysOn, daysOff, self)
-        self.rotationSegments.add(segment)
-        segment.setSequence(self.rotationSegments.count())
+        self.rotationSegments.append(segment)
+        segment.sequence = len(self.rotationSegments)
         return segment
     
     def compareTo(self, other):
