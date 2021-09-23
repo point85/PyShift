@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from datetime import timedelta
 
 from PyShift.workschedule.named import Named
@@ -67,7 +67,12 @@ class Team(Named):
             msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, date)
             raise PyShiftException(msg)
         
-        rotationDays = timedelta(days=self.rotation.duration)
+        duration = int(self.rotation.getDuration().total_seconds())
+        rotationDays = int(duration / 86400)
+        
+        if (rotationDays == 0):
+            rotationDays = 1
+            
         dayInRotation = (deltaDays % rotationDays) + 1
         return dayInRotation
 
@@ -83,14 +88,14 @@ class Team(Named):
         
         #shiftRotation = self.rotation
         
-        if (self.rotation.duration == timedelta(seconds=0)):
+        if (self.rotation.getDuration() == timedelta(seconds=0)):
             # no instance for that day
             return instance
     
         dayInRotation = self.getDayInRotation(day)
 
         # shift or off shift
-        period = self.rotation.periods[dayInRotation - 1]
+        period = self.rotation.getPeriods()[dayInRotation - 1]
 
         if (period.isWorkingPeriod()):
             startDateTime = datetime(day.year(), day.month(), day.day(), period.startTime.hour(),period.startTime.minute(), period.startTime.second() )
@@ -172,9 +177,9 @@ class Team(Named):
                 lastShift = instance.shift
                 # check for last date
                 if (thisDate == toDate):
-                    duration = lastShift.calculateWorkingTime(thisTime, toTime, True)
+                    duration = lastShift.calculateTotalWorkingTime(thisTime, toTime, True)
                 else:
-                    duration = lastShift.calculateWorkingTime(thisTime, datetime.max.time(), True)
+                    duration = lastShift.calculateTotalWorkingTime(thisTime, datetime.time().max, True)
             
                 timeSum = timeSum + duration
             else:
@@ -191,7 +196,7 @@ class Team(Named):
 
             # move ahead n days starting at midnight
             thisDate = thisDate + timedelta(days=n)
-            thisTime = datetime.min.time()
+            thisTime = datetime.time().min
         # end day loop
 
         return timeSum

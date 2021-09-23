@@ -1,5 +1,4 @@
-#from abc import ABC
-
+from datetime import datetime
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException
@@ -33,13 +32,19 @@ class TimePeriod(Named):
         
         self.duration = duration
     
+    def timePlus(self, time, timedelta):
+        # unused date portion
+        start = datetime(2021, 1, 1, hour=time.hour, minute=time.minute, second=time.second)
+        end = start + timedelta
+        return end.time()
+
     ##
     # Get period end
     # 
     # @return End time
     #
     def getEndTime(self):
-        return self.startTime + self.duration
+        return self.timePlus(self.startTime, self.duration)
     
     ##
     # Set period start time

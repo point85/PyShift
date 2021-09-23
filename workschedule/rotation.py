@@ -16,7 +16,7 @@ class Rotation(Named):
     def __init__(self, name, description):
         super().__init__(name, description)
         self.rotationSegments = []
-        self.periods = None
+        self.periods = []
     
     @staticmethod    
     def getDayOff():
@@ -55,7 +55,7 @@ class Rotation(Named):
     # @return Day count
     #
     def getDayCount(self):
-        return self.periods.count()
+        return len(self.periods)
 
     ##
     # Get the duration of this rotation
@@ -63,7 +63,7 @@ class Rotation(Named):
     # @return timedelta
     #
     def getDuration(self):
-        return timedelta(days=self.periods.count())
+        return timedelta(days=len(self.periods))
     
     ##
     # Get the shift rotation's total working time

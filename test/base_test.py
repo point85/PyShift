@@ -30,7 +30,7 @@ class BaseTest(ABC, unittest.TestCase):
             self.assertTrue(len(shift.name) > 0)
             self.assertTrue(len(shift.description) > 0)
 
-            self.assertTrue(total.minutes() > 0)
+            self.assertTrue(total.total_seconds() > 0)
             self.assertTrue(shift.breaks is not None)
             self.assertTrue(start is not None)
             self.assertTrue(end is not None)
@@ -40,32 +40,32 @@ class BaseTest(ABC, unittest.TestCase):
             
             if (spansMidnight): 
                 # get the interval before midnight
-                worked = shift.calculateWorkingTime(start, end, True)
+                worked = shift.calculateTotalWorkingTime(start, end, True)
             else:
                 worked = shift.calculateWorkingTime(start, end)
 
             self.assertTrue(worked == total)
 
             if (spansMidnight): 
-                worked = shift.calculateWorkingTime(start, start, True)
+                worked = shift.calculateTotalWorkingTime(start, start, True)
             else: 
                 worked = shift.calculateWorkingTime(start, start)
 
             # 24 hour shift on midnight is a special case
-            if (total.hours() == 24): 
-                self.assertTrue(worked.hours() == 24)
+            if (total.total_seconds() == 86400): 
+                self.assertTrue(worked.total_seconds() == 86400)
             else: 
-                self.assertTrue(worked.hours() == 0)
+                self.assertTrue(worked.total_seconds() == 0)
 
             if (spansMidnight): 
-                worked = shift.calculateWorkingTime(end, end, True)
+                worked = shift.calculateTotalWorkingTime(end, end, True)
             else: 
                 worked = shift.calculateWorkingTime(end, end)
 
-            if (total.hours() == 24): 
-                self.assertTrue(worked.hours() == 24)
+            if (total.total_seconds() == 86400): 
+                self.assertTrue(worked.total_seconds() == 86400)
             else: 
-                self.assertTrue(worked.hours() == 0)
+                self.assertTrue(worked.total_seconds() == 0)
 
             try: 
                 t = start - timedelta(minutes=1)
@@ -177,11 +177,13 @@ class BaseTest(ABC, unittest.TestCase):
         # toString
         if (self.testToString): 
             print(str(ws))
-            ws.printShiftInstances(instanceReference, instanceReference + rotationDays.days())
+
+            end = timedelta(days=rotationDays.days)
+            ws.printShiftInstances(instanceReference, instanceReference + end)
 
         self.assertTrue(len(ws.name) > 0)
         self.assertTrue(len(ws.description) > 0)
-        self.assertTrue(ws.getNonWorkingPeriods() is not None)
+        self.assertTrue(ws.nonWorkingPeriods is not None)
 
         # shifts
         self.testShifts(ws)

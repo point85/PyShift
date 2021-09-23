@@ -54,13 +54,13 @@ class Shift(TimePeriod):
     
     @staticmethod
     def secondOfDay(time):
-        return time.hour()* 3600 + time.minute() * 60 + time.second()
+        return time.hour * 3600 + time.minute * 60 + time.second
     
     @staticmethod
     def toRoundedSecond(time):
         second = Shift.secondOfDay(time)
 
-        if (time.microsecond() > 500000):
+        if (time.microsecond > 500000):
             second = second + 1
 
         return second
@@ -113,7 +113,7 @@ class Shift(TimePeriod):
         delta = toSecond - fromSecond
 
         # check for 24 hour shift
-        if (delta == 0 and fromSecond == startSecond and self.duration.hours() == 24):
+        if (delta == 0 and fromSecond == startSecond and self.duration.total_seconds() == 86400):
             delta = 86400
     
         if (delta < 0):

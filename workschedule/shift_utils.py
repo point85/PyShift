@@ -1,18 +1,18 @@
 from builtins import staticmethod
-from datetime import datetime
+import datetime
 
 class ShiftUtils():
     @staticmethod
     def toEpochSecond(startDate):
         # seconds from Unix epoch
-        delta = startDate - datetime.datetime(1970,1,1)
-        totalSeconds = int(delta).total_second
+        deltaDays = startDate - datetime.date(1970,1,1)
+        totalSeconds = int(deltaDays.total_seconds())
         return totalSeconds
 
     @staticmethod
     def toEpochDay(startDate):
         totalSeconds = ShiftUtils.toEpochSecond(startDate)
-        day = totalSeconds/86400
+        day = int(totalSeconds/86400)
         remainder = totalSeconds%86400  
         
         if (remainder > 0):
