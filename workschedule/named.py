@@ -39,7 +39,7 @@ class Named(ABC):
     
     def setName(self, name):
         if (name is None):          
-            msg = Localizer.instance().langStr("name.not.defined")
+            msg = Localizer.instance().messageStr("name.not.defined")
             raise PyShiftException(msg)
         
         self.name = name

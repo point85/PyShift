@@ -24,11 +24,11 @@ class TimePeriod(Named):
     # 
     def setDuration(self, duration):
         if (duration is None or duration.total_seconds() == 0):
-            msg = Localizer.instance().langStr("duration.not.defined")
+            msg = Localizer.instance().messageStr("duration.not.defined")
             raise PyShiftException(msg)
         
         if (duration.total_seconds() > TimePeriod.SECONDS_PER_DAY):
-            msg = Localizer.instance().langStr("duration.not.allowed")
+            msg = Localizer.instance().messageStr("duration.not.allowed")
             raise PyShiftException(msg)
         
         self.duration = duration
@@ -49,14 +49,14 @@ class TimePeriod(Named):
     #
     def setStartTime(self, startTime):
         if (startTime is None):
-            msg = Localizer.instance().langStr("start.not.defined")
+            msg = Localizer.instance().messageStr("start.not.defined")
             raise PyShiftException(msg)
         
         self.startTime = startTime
 
     def __str__(self):
-        start = Localizer.instance().langStr("period.start")
-        end = Localizer.instance().langStr("period.end")
+        start = Localizer.instance().messageStr("period.start")
+        end = Localizer.instance().messageStr("period.end")
 
         return super().str() + ", " + start + ": " + self.startTime + " (" + self.duration + ")" + ", " + end + ": " + self.getEndTime()
 

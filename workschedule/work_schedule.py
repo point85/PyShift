@@ -120,7 +120,7 @@ class WorkSchedule(Named):
         team = Team(name, description, rotation, rotationStart)
 
         if (team in self.teams):
-            msg = Localizer.instance().langStr("team.already.exists").format(name)
+            msg = Localizer.instance().messageStr("team.already.exists").format(name)
             raise PyShiftException(msg)
     
         self.teams.append(team)
@@ -143,7 +143,7 @@ class WorkSchedule(Named):
         shift = Shift(name, description, start, duration)
 
         if (shift in self.shifts):
-            msg = Localizer.instance().langStr("shift.already.exists").format(name)
+            msg = Localizer.instance().messageStr("shift.already.exists").format(name)
             raise PyShiftException(msg)
     
         self.shifts.append(shift)
@@ -166,7 +166,7 @@ class WorkSchedule(Named):
 
                 for period in rotation.periods:
                     if (period == inUseShift):
-                        msg = Localizer.instance().langStr("shift.in.use").format(shift.getName())
+                        msg = Localizer.instance().messageStr("shift.in.use").format(shift.getName())
                         raise PyShiftException(msg)
                 
         self.shifts.remove(shift)
@@ -187,7 +187,7 @@ class WorkSchedule(Named):
         period = NonWorkingPeriod(name, description, startDateTime, duration)
 
         if (period in self.nonWorkingPeriods):
-            msg = Localizer.instance().langStr("nonworking.period.already.exists").format(name)
+            msg = Localizer.instance().messageStr("nonworking.period.already.exists").format(name)
             raise PyShiftException(msg)
     
         period.workSchedule = self
@@ -207,7 +207,7 @@ class WorkSchedule(Named):
         rotation = Rotation(name, description)
 
         if (rotation in self.rotations):
-            msg = Localizer.instance().langStr("rotation.already.exists").format(name)
+            msg = Localizer.instance().messageStr("rotation.already.exists").format(name)
             raise PyShiftException(msg)
 
         self.rotations.append(rotation)
@@ -324,20 +324,20 @@ class WorkSchedule(Named):
 
     def printShiftInstances(self, start, end):
         if (start > end):
-            msg = Localizer.instance().langStr("end.earlier.than.start").format(start, end)
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(start, end)
             raise PyShiftException(msg)
     
         days = ShiftUtils.toEpochDay(end) - ShiftUtils.toEpochDay(start) + 1
         day = start
 
-        print(Localizer.instance().langStr("shifts.working"))
+        print(Localizer.instance().messageStr("shifts.working"))
         for i in range(days):
-            print("[" + str(i + 1) + "] " + Localizer.instance().langStr("shifts.day") + ": " + str(day))
+            print("[" + str(i + 1) + "] " + Localizer.instance().messageStr("shifts.day") + ": " + str(day))
 
             instances = self.getShiftInstancesForDay(day)
 
             if (len(instances) == 0):
-                print("   " + Localizer.instance().langStr("shifts.non.working"))
+                print("   " + Localizer.instance().messageStr("shifts.non.working"))
             else:
                 count = 1
                 for instance in instances:
@@ -351,14 +351,14 @@ class WorkSchedule(Named):
     # 
     # @return String
     def __str__(self):
-        sch = Localizer.instance().langStr("schedule")
-        rd = Localizer.instance().langStr("rotation.duration")
-        sw = Localizer.instance().langStr("schedule.working")
-        sf = Localizer.instance().langStr("schedule.shifts")
-        st = Localizer.instance().langStr("schedule.teams")
-        sc = Localizer.instance().langStr("schedule.coverage")
-        sn = Localizer.instance().langStr("schedule.non")
-        stn = Localizer.instance().langStr("schedule.total")
+        sch = Localizer.instance().messageStr("schedule")
+        rd = Localizer.instance().messageStr("rotation.duration")
+        sw = Localizer.instance().messageStr("schedule.working")
+        sf = Localizer.instance().messageStr("schedule.shifts")
+        st = Localizer.instance().messageStr("schedule.teams")
+        sc = Localizer.instance().messageStr("schedule.coverage")
+        sn = Localizer.instance().messageStr("schedule.non")
+        stn = Localizer.instance().messageStr("schedule.total")
 
         text = sch + ": " + super().__str__()
         try:

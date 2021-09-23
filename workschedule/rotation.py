@@ -94,7 +94,7 @@ class Rotation(Named):
     #
     def addSegment(self, startingShift, daysOn, daysOff):
         if (startingShift is None):
-            msg = Localizer.instance().langStr("no.starting.shift")
+            msg = Localizer.instance().messageStr("no.starting.shift")
             raise PyShiftException(msg)
         
         segment = RotationSegment(startingShift, daysOn, daysOff, self)
@@ -111,12 +111,12 @@ class Rotation(Named):
     #
     def __str__(self):
         named = super().__str__()
-        rd = Localizer.instance().langStr("rotation.duration")
-        rda = Localizer.instance().langStr("rotation.days")
-        rw = Localizer.instance().langStr("rotation.working")
-        rper = Localizer.instance().langStr("rotation.periods")
-        on = Localizer.instance().langStr("rotation.on")
-        off = Localizer.instance().langStr("rotation.off")
+        rd = Localizer.instance().messageStr("rotation.duration")
+        rda = Localizer.instance().messageStr("rotation.days")
+        rw = Localizer.instance().messageStr("rotation.working")
+        rper = Localizer.instance().messageStr("rotation.periods")
+        on = Localizer.instance().messageStr("rotation.on")
+        off = Localizer.instance().messageStr("rotation.off")
 
         periods= ""
 

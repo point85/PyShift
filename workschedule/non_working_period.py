@@ -21,7 +21,7 @@ class NonWorkingPeriod(Named):
     #
     def setStartDateTime(self, startDateTime):
         if (startDateTime is None):
-            msg = Localizer.instance().langStr("start.not.defined")
+            msg = Localizer.instance().messageStr("start.not.defined")
             raise PyShiftException(msg)
 
         self.startDateTime = startDateTime
@@ -42,14 +42,14 @@ class NonWorkingPeriod(Named):
     #
     def setDuration(self, duration):
         if (duration is None or duration.total_seconds() == 0):
-            msg = Localizer.instance().langStr("duration.not.defined")
+            msg = Localizer.instance().messageStr("duration.not.defined")
             raise PyShiftException(msg)
 
         self.duration = duration
     
     def __str__(self):
-        start = Localizer.instance().langStr("period.start")
-        end = Localizer.instance().langStr("period.end")
+        start = Localizer.instance().messageStr("period.start")
+        end = Localizer.instance().messageStr("period.end")
 
         return super().str() + ", " + start + ": " + self.startDateTime + " (" + self.duration + ")" + ", " + end + ": " + self.getEndDateTime()
     

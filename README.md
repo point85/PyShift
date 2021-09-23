@@ -1,4 +1,4 @@
-# 3.5.0
+# PyShift
 The PyShift library project manages work schedules.  A work schedule consists of one or more teams who rotate through a sequence of shift and off-shift periods of time.  The PyShift project allows breaks during shifts to be defined as well as non-working periods of time (e.g. holidays and scheduled maintenance periods) that are applicable to the entire work schedule.
 
 ## Concepts

@@ -64,7 +64,7 @@ class Team(Named):
         deltaDays = dayTo - start
 
         if (deltaDays < 0):
-            msg = Localizer.instance().langStr("end.earlier.than.start").format(self.rotationStart, date)
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, date)
             raise PyShiftException(msg)
         
         rotationDays = timedelta(days=self.rotation.duration)
@@ -129,7 +129,7 @@ class Team(Named):
     #
     def calculateWorkingTime(self, fromTime, toTime):
         if (fromTime > toTime):
-            msg = Localizer.instance().langStr("end.earlier.than.start").format(toTime, fromTime)
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTime, fromTime)
             raise PyShiftException(msg)
     
         timeSum = timedelta(seconds=0)
@@ -206,9 +206,9 @@ class Team(Named):
     # Build a string value for this team
     #
     def __str__(self):
-        rpct = Localizer.instance().langStr("rotation.percentage")
-        rs = Localizer.instance().langStr("rotation.start")
-        avg = Localizer.instance().langStr("team.hours")
+        rpct = Localizer.instance().messageStr("rotation.percentage")
+        rs = Localizer.instance().messageStr("rotation.start")
+        avg = Localizer.instance().messageStr("team.hours")
         worked = rpct + ": %.2f" % self.getPercentageWorked()
 
         text = ""

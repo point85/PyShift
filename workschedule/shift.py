@@ -77,7 +77,7 @@ class Shift(TimePeriod):
     #
     def calculateWorkingTime(self, fromTime, toTime):
         if (self.spansMidnight()):
-            msg = Localizer.instance().langStr("shift.spans.midnight").format(self.name, fromTime, toTime)
+            msg = Localizer.instance().messageStr("shift.spans.midnight").format(self.name, fromTime, toTime)
             raise PyShiftException(msg)
     
         return self.calculateTotalWorkingTime(fromTime, toTime, True)
@@ -215,7 +215,7 @@ class Shift(TimePeriod):
         text = super().__str__()
 
         if (len(self.breaks) > 0):
-            text += "\n      " + str(len(self.breaks)) + " " + Localizer.instance().langStr("breaks") + ":"
+            text += "\n      " + str(len(self.breaks)) + " " + Localizer.instance().messageStr("breaks") + ":"
     
         for breakPeriod in self.breaks:
             text += "\n      " + str(breakPeriod)
@@ -281,10 +281,10 @@ class ShiftInstance:
     # Build a string representation of a shift instance
     #
     def __str__(self):
-        t = Localizer.instance().langStr("team")
-        s = Localizer.instance().langStr("shift")
-        ps = Localizer.instance().langStr("period.start")
-        pe = Localizer.instance().langStr("period.end")
+        t = Localizer.instance().messageStr("team")
+        s = Localizer.instance().messageStr("shift")
+        ps = Localizer.instance().messageStr("period.start")
+        pe = Localizer.instance().messageStr("period.end")
 
         text = " " + t + ": " + self.team.name + ", " + s + ": " + self.shift.name + ", " + ps + ": " + str(self.startDateTime) + ", " + pe + ": " + str(self.getEndTime())
         return text

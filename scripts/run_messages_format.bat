@@ -1,1 +1,1 @@
-py -3.9 C:\Users\kentr\AppData\Local\Programs\Python\Python39\Tools\i18n\msgfmt.py -o ..\workschedule\locales\en_US\LC_MESSAGES\messages.mo ..\workschedule\locales\en_US\LC_MESSAGES\messages.po
+py -3.9 C:\Users\kentr\AppData\Local\Programs\Python\Python39\Tools\i18n\msgfmt.py -o ..\workschedule\locales\en_US\LC_MESSAGES\schedule.mo ..\workschedule\locales\en_US\LC_MESSAGES\schedule.po

@@ -4,8 +4,8 @@ from datetime import time, timedelta
 from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
 
-class TestSnippet(BaseTest):   
-    def testLowNight(self):
+class TestSnippet(BaseTest):           
+    def testLowNight(self): 
         schedule = WorkSchedule("Low Night Demand Plan", "Low night demand")
         
         # 3 shifts
@@ -33,6 +33,6 @@ class TestSnippet(BaseTest):
         schedule.createTeam("Team6", "Sixth team", rotation, self.referenceDate - timedelta(days=35))
 
         self.runBaseTest(schedule, timedelta(hours=224), timedelta(days=42), self.referenceDate)
-        
+      
 if __name__ == '__main__':
     unittest.main()
