@@ -1,8 +1,8 @@
-from datetime import timedelta
+from datetime import date, time, datetime, timedelta
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift import Shift
+from PyShift.workschedule.shift import Shift, ShiftInstance
 from PyShift.workschedule.team import Team
 from PyShift.workschedule.rotation import Rotation
 from PyShift.workschedule.non_working_period import NonWorkingPeriod
@@ -24,7 +24,7 @@ class WorkSchedule(Named):
     #            Schedule description
     # @throws Exception
     #             exception
-    def __init__(self, name, description):
+    def __init__(self, name: str, description: str):
         super().__init__(name, description)
         self.teams = []
         self.shifts = []
@@ -36,7 +36,7 @@ class WorkSchedule(Named):
     # 
     # @param team
     #            {@link Team}
-    def deleteTeam(self, team):
+    def deleteTeam(self, team: Team):
         if (team in self.teams):
             self.teams.remove(team)
 
@@ -45,12 +45,12 @@ class WorkSchedule(Named):
     # 
     # @param period
     #            {@link NonWorkingPeriod}
-    def deleteNonWorkingPeriod(self, period):
+    def deleteNonWorkingPeriod(self, period: NonWorkingPeriod):
         if (period in self.nonWorkingPeriods):
             self.nonWorkingPeriods.remove(period)
             
     @staticmethod
-    def getPeriodKey(shift):
+    def getPeriodKey(shift: Shift) -> time:
         return shift.startTime
     ##
     # Get the list of shift instances for the specified date that start in that
@@ -59,7 +59,7 @@ class WorkSchedule(Named):
     # @param day
     #            LocalDate
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForDay(self, day):
+    def getShiftInstancesForDay(self, day: date) -> [ShiftInstance]:
         workingShifts = []
 
         # for each team see if there is a working shift
@@ -91,7 +91,7 @@ class WorkSchedule(Named):
     # @param dateTime
     #            Date and time of day
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForTime(self, dateTime):
+    def getShiftInstancesForTime(self, dateTime: datetime) -> [ShiftInstance]:
         workingShifts = []
 
         # day
@@ -116,7 +116,7 @@ class WorkSchedule(Named):
     # @param rotationStart 
     #            Start of rotation
     # @return {@link Team}
-    def createTeam(self, name, description, rotation, rotationStart):
+    def createTeam(self, name: str, description: str, rotation: Rotation, rotationStart:time) -> Team:
         team = Team(name, description, rotation, rotationStart)
 
         if (team in self.teams):
@@ -139,7 +139,7 @@ class WorkSchedule(Named):
     # @param duration
     #            duration
     # @return {@link Shift}
-    def createShift(self, name, description, start, duration):
+    def createShift(self, name:str, description:str, start: time, duration: timedelta) -> Shift:
         shift = Shift(name, description, start, duration)
 
         if (shift in self.shifts):
@@ -155,7 +155,7 @@ class WorkSchedule(Named):
     # 
     # @param shift
     #            {@link Shift} to delete
-    def deleteShift(self, shift):
+    def deleteShift(self, shift:Shift):
         if (shift not in self.shifts):
             return
     
@@ -183,7 +183,7 @@ class WorkSchedule(Named):
     # @param duration
     #            Duration of period
     # @return {@link NonWorkingPeriod}
-    def createNonWorkingPeriod(self, name, description, startDateTime, duration):
+    def createNonWorkingPeriod(self, name: str, description: str, startDateTime: datetime, duration: timedelta) -> NonWorkingPeriod:
         period = NonWorkingPeriod(name, description, startDateTime, duration)
 
         if (period in self.nonWorkingPeriods):
@@ -203,7 +203,7 @@ class WorkSchedule(Named):
     # @param description Description of rotation
     # @return {@link Rotation}
     #
-    def createRotation(self, name, description):
+    def createRotation(self, name: str, description: str) -> Rotation:
         rotation = Rotation(name, description)
 
         if (rotation in self.rotations):
@@ -218,7 +218,7 @@ class WorkSchedule(Named):
     # Get total duration of rotation across all teams.
     # 
     # @return Duration of rotation
-    def getRotationDuration(self):
+    def getRotationDuration(self) -> timedelta:
         timeSum = timedelta()
 
         for team in self.teams:
@@ -230,7 +230,7 @@ class WorkSchedule(Named):
     # Get the total working time for all team rotations
     # 
     # @return rotation working time
-    def getRotationWorkingTime(self):
+    def getRotationWorkingTime(self) -> timedelta:
         timeSum = timedelta()
 
         for team in self.teams:
@@ -250,7 +250,7 @@ class WorkSchedule(Named):
     # @throws Exception
     #             exception
 
-    def calculateWorkingTime(self, fromTime, toTime):
+    def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         timeSum = timedelta()
 
         # now add up scheduled time by team
@@ -276,7 +276,7 @@ class WorkSchedule(Named):
     # @param to
     #            Ending date and time
     # @return Non-working time duration
-    def calculateNonWorkingTime(self, fromTime, toTime):
+    def calculateNonWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         timeSum = timedelta()
 
         fromSeconds = ShiftUtils.toEpochSecond(fromTime)
@@ -322,7 +322,7 @@ class WorkSchedule(Named):
     # @throws Exception
     #             exception
 
-    def printShiftInstances(self, start, end):
+    def printShiftInstances(self, start: datetime, end: datetime):
         if (start > end):
             msg = Localizer.instance().messageStr("end.earlier.than.start").format(start, end)
             raise PyShiftException(msg)
@@ -350,7 +350,7 @@ class WorkSchedule(Named):
     # Build a string value for the work schedule
     # 
     # @return String
-    def __str__(self):
+    def __str__(self) -> str:
         sch = Localizer.instance().messageStr("schedule")
         rd = Localizer.instance().messageStr("rotation.duration")
         sw = Localizer.instance().messageStr("schedule.working")
@@ -408,7 +408,7 @@ class WorkSchedule(Named):
         ##
     # Compare one work schedule to another one
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> bool:
         return self.name == other.name
 
         

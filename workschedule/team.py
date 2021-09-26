@@ -1,10 +1,10 @@
-import datetime
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.shift_utils import ShiftUtils
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift import ShiftInstance
+from PyShift.workschedule.rotation import Rotation
 from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
@@ -12,7 +12,7 @@ from PyShift.workschedule.shift_exception import PyShiftException
 # schedule.
 # 
 class Team(Named):
-    def __init__(self, name, description, rotation, rotationStart):
+    def __init__(self, name: str, description: str, rotation: Rotation, rotationStart: date):
         super().__init__(name, description)
                 
         # shift rotation days
@@ -26,7 +26,7 @@ class Team(Named):
     # 
     # @return Duration
     #
-    def getRotationDuration(self):
+    def getRotationDuration(self) -> timedelta:
         return self.rotation.getDuration()
     
     ##
@@ -35,7 +35,7 @@ class Team(Named):
     # 
     # @return Percentage
     #
-    def getPercentageWorked(self):
+    def getPercentageWorked(self) -> float:
         num = timedelta(seconds=self.rotation.getWorkingTime())
         denom = timedelta(seconds=self.getRotationDuration()) 
         return (num / denom) * 100.0
@@ -45,7 +45,7 @@ class Team(Named):
     # 
     # @return Duration of hours worked per week
     #
-    def getHoursWorkedPerWeek(self):
+    def getHoursWorkedPerWeek(self) -> timedelta:
         deltaDays = timedelta(days=self.rotation.getDuration())
         secPerWeek = timedelta(seconds = self.rotation.getWorkingTime()) * (7.0 / deltaDays.days)
         return timedelta(seconds=secPerWeek)
@@ -57,7 +57,7 @@ class Team(Named):
     #            LocalDate
     # @return day number in the rotation, starting at 1
     #
-    def getDayInRotation(self, date):
+    def getDayInRotation(self, date: date) -> int:
         # calculate total number of days from start of rotation
         dayTo = ShiftUtils.toEpochDay(date)
         start = ShiftUtils.toEpochDay(self.rotationStart)
@@ -73,8 +73,7 @@ class Team(Named):
         if (rotationDays == 0):
             rotationDays = 1
             
-        dayInRotation = (deltaDays % rotationDays) + 1
-        return dayInRotation
+        return (deltaDays % rotationDays) + 1
 
     ##
     # Get the {@link ShiftInstance} for the specified day
@@ -83,7 +82,7 @@ class Team(Named):
     #            Day with a shift instance
     # @return {@link ShiftInstance}
     #
-    def getShiftInstanceForDay(self, day):
+    def getShiftInstanceForDay(self, day: date) -> ShiftInstance:
         instance = None
         
         #shiftRotation = self.rotation
@@ -110,7 +109,7 @@ class Team(Named):
     #            Date to check
     # @return True if a day off
     #
-    def isDayOff(self, day):
+    def isDayOff(self, day: date) -> bool:
         dayOff = False
 
         dayInRotation = self.getDayInRotation(day)
@@ -132,7 +131,7 @@ class Team(Named):
     #            Ending date and time of day
     # @return Duration of working time
     #
-    def calculateWorkingTime(self, fromTime, toTime):
+    def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         if (fromTime > toTime):
             msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTime, fromTime)
             raise PyShiftException(msg)
@@ -204,13 +203,13 @@ class Team(Named):
     ##
     # Compare one team to another one
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> bool:
         return self.name == other.name
     
     ##
     # Build a string value for this team
     #
-    def __str__(self):
+    def __str__(self) -> str:
         rpct = Localizer.instance().messageStr("rotation.percentage")
         rs = Localizer.instance().messageStr("rotation.start")
         avg = Localizer.instance().messageStr("team.hours")

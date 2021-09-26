@@ -1,16 +1,16 @@
-from datetime import timedelta
+from datetime import datetime, time, timedelta
+from builtins import staticmethod
 
 from PyShift.workschedule.time_period import TimePeriod
 from PyShift.workschedule.work_break import Break
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException
-from builtins import staticmethod
 
 ##
 # Class Shift is a scheduled working time period, and can include breaks.
 # 
 class Shift(TimePeriod):
-    def __init__(self, name, description, start, duration):
+    def __init__(self, name:str, description: str, start: time, duration: timedelta):
         super().__init__(name, description, start, duration)
         self.breaks = []
 
@@ -20,7 +20,7 @@ class Shift(TimePeriod):
     # @param breakPeriod
     #           :@link Break}
     #
-    def addBreak(self, breakPeriod):
+    def addBreak(self, breakPeriod: Break):
         if (breakPeriod not in self.breaks):
             self.breaks.append(breakPeriod)
 
@@ -30,7 +30,7 @@ class Shift(TimePeriod):
     # @param breakPeriod
     #           :@link Break}
     #
-    def removeBreak(self, breakPeriod):
+    def removeBreak(self, breakPeriod: Break):
         if (breakPeriod in self.breaks):
             self.breaks.remove(breakPeriod)
 
@@ -47,17 +47,17 @@ class Shift(TimePeriod):
     #            of break
     # @return:@link Break}
     #
-    def createBreak(self, name, description, startTime, duration):
+    def createBreak(self, name: str, description: str, startTime: time, duration: timedelta) ->Break:
         period = Break(name, description, startTime, duration)
         self.addBreak(period)
         return period
     
     @staticmethod
-    def secondOfDay(time):
+    def secondOfDay(time: time) -> int:
         return time.hour * 3600 + time.minute * 60 + time.second
     
     @staticmethod
-    def toRoundedSecond(time):
+    def toRoundedSecond(time: time) -> int:
         second = Shift.secondOfDay(time)
 
         if (time.microsecond > 500000):
@@ -75,7 +75,7 @@ class Shift(TimePeriod):
     #            Ending time
     # @return of working time
     #
-    def calculateWorkingTime(self, fromTime, toTime):
+    def calculateWorkingTime(self, fromTime:time, toTime:time) -> timedelta:
         if (self.spansMidnight()):
             msg = Localizer.instance().messageStr("shift.spans.midnight").format(self.name, fromTime, toTime)
             raise PyShiftException(msg)
@@ -87,7 +87,7 @@ class Shift(TimePeriod):
     # 
     # @return True if the shift extends over midnight, otherwise False
     #
-    def spansMidnight(self):
+    def spansMidnight(self) -> bool:
         startSecond = Shift.toRoundedSecond(self.startTime)
         endSecond = Shift.toRoundedSecond(self.getEndTime())
         return True if endSecond <= startSecond else False
@@ -104,7 +104,7 @@ class Shift(TimePeriod):
     #            midnight. Otherwise calculate the time after midnight.
     # @return of working time
     #
-    def calculateTotalWorkingTime(self, fromTime, toTime, beforeMidnight):
+    def calculateTotalWorkingTime(self, fromTime:time, toTime:time, beforeMidnight: bool) -> timedelta:
         startSecond = Shift.toRoundedSecond(self.startTime)
         endSecond = Shift.toRoundedSecond(self.getEndTime())
         fromSecond = Shift.toRoundedSecond(fromTime)
@@ -141,11 +141,10 @@ class Shift(TimePeriod):
         if (toSecond > endSecond):
             toSecond = endSecond
 
-        duration = timedelta(seconds=(toSecond - fromSecond))
-        return duration
+        return  timedelta(seconds=(toSecond - fromSecond))
 
     @staticmethod
-    def compare(firstTime, secondTime):
+    def compare(firstTime:  time, secondTime:  time) -> int:
         value = 0
         
         if (firstTime < secondTime):
@@ -161,7 +160,7 @@ class Shift(TimePeriod):
     #           :@link LocalTime}
     # @return True if in the shift
     #
-    def isInShift(self, time):
+    def isInShift(self, time: time) -> bool:
         answer = False
 
         start = self.startTime
@@ -193,17 +192,20 @@ class Shift(TimePeriod):
     # 
     # @return of all breaks
     #
-    def calculateBreakTime(self):
+    def calculateBreakTime(self) -> timedelta:
         timeSum = timedelta(seconds=0)
 
         for b in self.breaks:
             timeSum = timeSum + b.duration
         return timeSum
+    
+    def isWorkingPeriod(self) -> bool:
+        return True
 
     ##
     # Compare one shift to another one
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> bool:
         return self.name == other.name
 
     ##
@@ -211,7 +213,7 @@ class Shift(TimePeriod):
     # 
     # @return String
     #
-    def __str__(self):
+    def __str__(self) -> str:
         text = super().__str__()
 
         if (len(self.breaks) > 0):
@@ -222,20 +224,12 @@ class Shift(TimePeriod):
     
         return text
 
-
-    def isWorkingPeriod(self):
-        return True
-
-
 ##
 # Class ShiftInstance is an instance of a:@link Shift}. A shift instance is
 # worked by a:@link Team}.
-# 
-# @author Kent Randall
-#
 #
 class ShiftInstance: 
-    def __init__(self, shift, startDateTime, team):
+    def __init__(self, shift: Shift, startDateTime: datetime, team):
         # definition of the shift
         self.shift = shift
         
@@ -250,7 +244,7 @@ class ShiftInstance:
     # 
     # @return LocalDateTime
     #
-    def getEndTime(self):
+    def getEndTime(self) -> datetime:
         return self.startDateTime + self.shift.getDuration()
 
     ##
@@ -259,7 +253,7 @@ class ShiftInstance:
     # 
     # @return -1 if less than, 0 if equal and 1 if greater than
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> int:
         value = 0
         
         if (self.startDateTime < other.startDateTime):
@@ -274,13 +268,13 @@ class ShiftInstance:
     # @param dateTime Date and time to check
     # @return True if the specified time is in this shift instance
     #
-    def isInShiftInstance(self, dateTime):
+    def isInShiftInstance(self, dateTime: datetime) -> bool:
         return (dateTime.compareTo(self.startDateTime) >= 0 and dateTime.compareTo(self.getEndTime()) <= 0)
 
     ##
     # Build a string representation of a shift instance
     #
-    def __str__(self):
+    def __str__(self) -> str:
         t = Localizer.instance().messageStr("team")
         s = Localizer.instance().messageStr("shift")
         ps = Localizer.instance().messageStr("period.start")

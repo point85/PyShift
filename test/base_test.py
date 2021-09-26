@@ -1,7 +1,7 @@
 import unittest
 from abc import ABC
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
@@ -13,7 +13,7 @@ class BaseTest(ABC, unittest.TestCase):
         self.schedule = None
     
         # reference date for start of shift rotations
-        self.referenceDate = date(2016, 10, 31)
+        self.referenceDate = datetime(2016, 10, 31)
         
         # partial test flags
         self.testToString = True
@@ -68,18 +68,19 @@ class BaseTest(ABC, unittest.TestCase):
                 self.assertTrue(worked.total_seconds() == 0)
 
             try: 
-                t = start - timedelta(minutes=1)
-                worked = shift.calculateWorkingTime(t, end)
+                dt = datetime(1970,1,1,hour=start.hour, minute=start.minute, second=start.second) - timedelta(minutes=1)
+                worked = shift.calculateWorkingTime(dt.time(), end)
 
                 if (total != shift.duration):
                     self.fail("Bad working time")
     
             except:
+                # continue test
                 pass
 
             try: 
-                t = end + timedelta(minutes=1)
-                worked = shift.calculateWorkingTime(start, t)
+                dt = datetime(1970,1,1,hour=end.hour, minute=end.minute, second=end.second) + timedelta(minutes=1)
+                worked = shift.calculateWorkingTime(start, dt.time())
                 if (total != shift.duration): 
                     self.fail("Bad working time")
     

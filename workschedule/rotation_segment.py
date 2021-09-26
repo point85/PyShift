@@ -1,11 +1,11 @@
-
+from PyShift.workschedule.shift import Shift
 ##
 # This class represents part of an entire rotation. The segment starts with a
 # shift and includes a count of the number of days on followed by the number of
 # days off.
 # 
 class RotationSegment():
-    def __init__(self, startingShift, daysOn, daysOff, rotation):
+    def __init__(self, startingShift: Shift, daysOn: int, daysOff: int, rotation):
         self.startingShift = startingShift
         self.daysOn = daysOn
         self.daysOff = daysOff
@@ -17,7 +17,7 @@ class RotationSegment():
     # @param other {@link RotationSegment}
     # @return -1 if starts before other, 0 is same starting times, else 1
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> int:
         value = 0
         if (self.sequence < other.sequence):
             value = -1

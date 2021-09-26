@@ -1,3 +1,5 @@
+
+from datetime import datetime, date, timedelta
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException
@@ -8,7 +10,7 @@ from PyShift.workschedule.shift_exception import PyShiftException
 # maintenance.
 #
 class NonWorkingPeriod(Named):
-    def __init__(self, name, description, startDateTime, duration):
+    def __init__(self, name: str, description: str, startDateTime: datetime, duration: timedelta):
         super().__init__(name, description)
         self.setStartDateTime(startDateTime)
         self.setDuration(duration)
@@ -19,7 +21,7 @@ class NonWorkingPeriod(Named):
     # @param startDateTime
     #            Period start
     #
-    def setStartDateTime(self, startDateTime):
+    def setStartDateTime(self, startDateTime: datetime):
         if (startDateTime is None):
             msg = Localizer.instance().messageStr("start.not.defined")
             raise PyShiftException(msg)
@@ -31,7 +33,7 @@ class NonWorkingPeriod(Named):
     # 
     # @return Period end
     #
-    def getEndDateTime(self):
+    def getEndDateTime(self) -> datetime:
         return self.startDateTime + self.duration
     
     ##
@@ -40,14 +42,14 @@ class NonWorkingPeriod(Named):
     # @param duration
     #            Duration
     #
-    def setDuration(self, duration):
+    def setDuration(self, duration: timedelta):
         if (duration is None or duration.total_seconds() == 0):
             msg = Localizer.instance().messageStr("duration.not.defined")
             raise PyShiftException(msg)
 
         self.duration = duration
     
-    def __str__(self):
+    def __str__(self) -> str:
         start = Localizer.instance().messageStr("period.start")
         end = Localizer.instance().messageStr("period.end")
 
@@ -58,7 +60,7 @@ class NonWorkingPeriod(Named):
     # @param other {@link NonWorkingPeriod}
     # @return -1 if starts before other, 0 is same starting times, else 1
     #
-    def compareTo(self, other):
+    def compareTo(self, other) -> int:
         value = 0
         if (self.startDateTime < other.startDateTime):
             value = -1
@@ -75,7 +77,7 @@ class NonWorkingPeriod(Named):
     # @throws Exception
     #             Exception
     #/
-    def isInPeriod(self, day):
+    def isInPeriod(self, day: date) -> bool:
         isInPeriod = False
 
         if (day.compareTo(self.startDateTime) >= 0 and day.compareTo(self.getEndDateTime()) <= 0):

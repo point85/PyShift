@@ -5,6 +5,7 @@ from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.day_off import DayOff
 from PyShift.workschedule.rotation_segment import RotationSegment 
 from PyShift.workschedule.shift_exception import PyShiftException
+from PyShift.workschedule.shift import Shift
 
 ##
 # Class Rotation maintains a sequenced list of shift and off-shift time
@@ -13,13 +14,13 @@ from PyShift.workschedule.shift_exception import PyShiftException
 class Rotation(Named):
     dayOff = None  
       
-    def __init__(self, name, description):
+    def __init__(self, name: str, description: str):
         super().__init__(name, description)
         self.rotationSegments = []
         self.periods = []
     
     @staticmethod    
-    def getDayOff():
+    def getDayOff() -> DayOff:
         if (Rotation.dayOff is None):
             midnight = datetime.combine(date.today(), datetime.min.time())
             dayOff = DayOff("DAY_OFF", "24 hour off period", midnight, timedelta(hours=24))
@@ -30,7 +31,7 @@ class Rotation(Named):
     # 
     # @return List of periods
     #
-    def getPeriods(self):
+    def getPeriods(self) -> []:
         if (self.periods is None):
             self.periods = []
             
@@ -54,7 +55,7 @@ class Rotation(Named):
     # 
     # @return Day count
     #
-    def getDayCount(self):
+    def getDayCount(self) -> int:
         return len(self.periods)
 
     ##
@@ -62,7 +63,7 @@ class Rotation(Named):
     # 
     # @return timedelta
     #
-    def getDuration(self):
+    def getDuration(self) -> timedelta:
         return timedelta(days=len(self.periods))
     
     ##
@@ -70,7 +71,7 @@ class Rotation(Named):
     # 
     # @return timedelta of working time
     #
-    def getWorkingTime(self):
+    def getWorkingTime(self) -> timedelta:
         workingTime = timedelta()
 
         for period in self.periods:
@@ -92,7 +93,7 @@ class Rotation(Named):
     #            Number of days off shift
     # @return {@link RotationSegment}
     #
-    def addSegment(self, startingShift, daysOn, daysOff):
+    def addSegment(self, startingShift: Shift, daysOn: int, daysOff: int) -> RotationSegment:
         if (startingShift is None):
             msg = Localizer.instance().messageStr("no.starting.shift")
             raise PyShiftException(msg)
@@ -109,7 +110,7 @@ class Rotation(Named):
     ##
     # Build a string representation of this rotation
     #
-    def __str__(self):
+    def __str__(self) -> str:
         named = super().__str__()
         rd = Localizer.instance().messageStr("rotation.duration")
         rda = Localizer.instance().messageStr("rotation.days")
@@ -127,8 +128,6 @@ class Rotation(Named):
             onOff = on if period.isWorkingPeriod() else off
             periods = periods + period.name + " (" + str(onOff) + ")"  
 
-        text = named + "\n" + rper + ": [" + periods+ "], " + rd + ": " + self.getDuration() + ", " + rda + ": " + timedelta(days=self.getDuration()) + ", " + rw + ": " + self.getWorkingTime()
-
-        return text
+        return named + "\n" + rper + ": [" + periods+ "], " + rd + ": " + self.getDuration() + ", " + rda + ": " + timedelta(days=self.getDuration()) + ", " + rw + ": " + self.getWorkingTime()
 
         

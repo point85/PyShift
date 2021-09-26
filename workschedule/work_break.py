@@ -1,3 +1,4 @@
+from datetime import time, timedelta
 from PyShift.workschedule.time_period import TimePeriod
 
 ##
@@ -16,9 +17,8 @@ class Break(TimePeriod):
     # @param duration
     #            Duration of break
     #
-    def __init__(self, name, description, start, duration):
+    def __init__(self, name: str, description: str, start: time, duration: timedelta):
         super().__init__(name, description, start, duration)
-
 
     def isWorkingPeriod(self):
         return True

@@ -1,6 +1,5 @@
 import locale
 import gettext
-import os
 
 ##
 # The Localizer class provides localization services for work schedule user-visible text as well as for error messages.
@@ -10,21 +9,21 @@ class Localizer:
     localePath = "locales"
      
     # single instance
-    localizer = None
+    singleton = None
     
     def __init__(self):
-        Localizer.localizer = self
+        Localizer.singleton = self
         self.messages = None
                     
     @staticmethod
     def instance():
-        if (Localizer.localizer is None):
+        if (Localizer.singleton is None):
             Localizer()
-        return Localizer.localizer 
+        return Localizer.singleton 
     
     @staticmethod
-    def getLC():
-        # get the default locale and the language code
+    def getLC() -> str:
+        # get the the language country code from the default locale
         thisLocale = locale.getdefaultlocale()
         langCC = thisLocale[0]
         return langCC
@@ -34,7 +33,7 @@ class Localizer:
     # 
     # @param msgId Message identifier
     # @return translated text    
-    def messageStr(self, msgId):
+    def messageStr(self, msgId: str) -> str:
         if (self.messages is None):
             # translated text for this locale and country code
             self.messages = gettext.translation("schedule", localedir=Localizer.localePath, languages=[Localizer.getLC()])

@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_exception import PyShiftException
+from PyShift.workschedule.shift_exception import PyShiftException 
 
 ##
 # Class TimePeriod is a named period of time with a specified duration and
@@ -10,7 +10,7 @@ from PyShift.workschedule.shift_exception import PyShiftException
 class TimePeriod(Named):
     SECONDS_PER_DAY = 24 * 60 * 60
     
-    def __init__(self, name, description, startTime, duration):
+    def __init__(self, name : str, description : str, startTime : datetime, duration : timedelta):
         super().__init__(name, description)
         self.setStartTime(startTime)
         self.setDuration(duration)
@@ -21,7 +21,7 @@ class TimePeriod(Named):
     # @param duration
     #            period duration
     # 
-    def setDuration(self, duration):
+    def setDuration(self, duration: timedelta):
         if (duration is None or duration.total_seconds() == 0):
             msg = Localizer.instance().messageStr("duration.not.defined")
             raise PyShiftException(msg)
@@ -32,10 +32,10 @@ class TimePeriod(Named):
         
         self.duration = duration
     
-    def timePlus(self, time, timedelta):
+    def timePlus(self, time: time, duration: timedelta) -> time:
         # unused date portion
         start = datetime(2021, 1, 1, hour=time.hour, minute=time.minute, second=time.second)
-        end = start + timedelta
+        end = start + duration
         return end.time()
 
     ##
@@ -43,7 +43,7 @@ class TimePeriod(Named):
     # 
     # @return End time
     #
-    def getEndTime(self):
+    def getEndTime(self) -> time:
         return self.timePlus(self.startTime, self.duration)
     
     ##
@@ -52,14 +52,14 @@ class TimePeriod(Named):
     # @param startTime
     #            Start time
     #
-    def setStartTime(self, startTime):
+    def setStartTime(self, startTime: time):
         if (startTime is None):
             msg = Localizer.instance().messageStr("start.not.defined")
             raise PyShiftException(msg)
         
         self.startTime = startTime
 
-    def __str__(self):
+    def __str__(self) -> str:
         start = Localizer.instance().messageStr("period.start")
         end = Localizer.instance().messageStr("period.end")
 
