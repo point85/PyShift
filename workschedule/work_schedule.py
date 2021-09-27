@@ -1,4 +1,5 @@
 from datetime import date, time, datetime, timedelta
+from operator import attrgetter
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
@@ -59,7 +60,7 @@ class WorkSchedule(Named):
     # @param day
     #            LocalDate
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForDay(self, day: date) -> [ShiftInstance]:
+    def getShiftInstancesForDay(self, day: datetime) -> [ShiftInstance]:
         workingShifts = []
 
         # for each team see if there is a working shift
@@ -72,7 +73,7 @@ class WorkSchedule(Named):
             # check to see if this is a non-working day
             addShift = True
 
-            startDate = instance.getStartTime().date()
+            startDate = instance.startDateTime.date()
 
             for nonWorkingPeriod in self.nonWorkingPeriods:
                 if (nonWorkingPeriod.isInPeriod(startDate)):
@@ -82,7 +83,7 @@ class WorkSchedule(Named):
             if (addShift):
                 workingShifts.append(instance)
         
-        workingShifts.sort(key=WorkSchedule.getPeriodKey)
+        workingShifts.sort(key=attrgetter('startDateTime'))
         return workingShifts
 
     ##
@@ -352,56 +353,52 @@ class WorkSchedule(Named):
     # @return String
     def __str__(self) -> str:
         sch = Localizer.instance().messageStr("schedule")
-        rd = Localizer.instance().messageStr("rotation.duration")
-        sw = Localizer.instance().messageStr("schedule.working")
+        rd = Localizer.instance().messageStr("rotation.duration") + ": " + str(self.getRotationDuration())
+        sw = Localizer.instance().messageStr("schedule.working") + ": " + str(self.getRotationWorkingTime())
         sf = Localizer.instance().messageStr("schedule.shifts")
         st = Localizer.instance().messageStr("schedule.teams")
         sc = Localizer.instance().messageStr("schedule.coverage")
         sn = Localizer.instance().messageStr("schedule.non")
         stn = Localizer.instance().messageStr("schedule.total")
 
-        text = sch + ": " + super().__str__()
-        try:
-            text = text + "\n" + rd + ": " + self.getRotationDuration() + ", " + sw + ": " + self.getRotationWorkingTime()
+        text = sch + ": " + super().__str__() + "\n" + rd  + ", " + sw 
 
-            # shifts
-            text = text + "\n" + sf + ": "
-            count = 1
-            for shift in self.shifts:
-                text = text + "\n   (" + str(count) + ") " + str(shift)
-                count = count + 1
+        # shifts
+        text = text + "\n" + sf + ": "
+        count = 1
+        for shift in self.shifts:
+            text = text + "\n   (" + str(count) + ") " + str(shift)
+            count = count + 1
                 
-            # teams
-            text = text + "\n" + st + ": "
+        # teams
+        text = text + "\n" + st + ": "
+        count = 1
+        teamPercent = 0.0
+            
+        for team in self.teams:
+            text = text + "\n   (" + str(count) + ") " + str(team)
+            teamPercent = teamPercent + team.getPercentageWorked()
+            count = count + 1
+        
+        fmtTeam = ": %.2f" % teamPercent
+        text = text + "\n" + sc + ": " + fmtTeam + "%"
+
+        # non-working periods
+        periods = self.nonWorkingPeriods
+
+        if (len(periods) > 0):
+            text = text + "\n" + sn + ":"
+
+            totalMinutes = timedelta()
+
             count = 1
-            teamPercent = 0.0
-            
-            for team in self.teams:
-                text = text + "\n   (" + str(count) + ") " + str(team)
-                teamPercent = teamPercent + team.getPercentageWorked()
+            for period in periods:
+                totalMinutes = totalMinutes + period.minutes()
+                text = text + "\n   (" + str(count) + ") " + str(period)
                 count = count + 1
-        
-            fmtTeam = ": %.2f" % teamPercent
-            text = text + "\n" + sc + ": " + fmtTeam + "%"
-
-            # non-working periods
-            periods = self.getNonWorkingPeriods()
-
-            if (len(periods) > 0):
-                text = text + "\n" + sn + ":"
-
-                totalMinutes = timedelta()
-
-                count = 1
-                for period in periods:
-                    totalMinutes = totalMinutes + period.minutes()
-                    text = text + "\n   (" + str(count) + ") " + str(period)
-                    count = count + 1
             
-                text = text + "\n" + stn + ": " + str(totalMinutes)
-        
-        except:
-            pass
+            text = text + "\n" + stn + ": " + str(totalMinutes)
+
 
         return text
     

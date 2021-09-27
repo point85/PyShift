@@ -1,11 +1,12 @@
 import unittest
+from operator import attrgetter
 
 from datetime import time, timedelta
 from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
 
-class TestSnippet(BaseTest):           
-    def testLowNight(self): 
+class TestSnippet(BaseTest):              
+    def testLowNight(self):         
         schedule = WorkSchedule("Low Night Demand Plan", "Low night demand")
         
         # 3 shifts

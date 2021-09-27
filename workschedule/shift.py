@@ -245,7 +245,7 @@ class ShiftInstance:
     # @return LocalDateTime
     #
     def getEndTime(self) -> datetime:
-        return self.startDateTime + self.shift.getDuration()
+        return self.startDateTime + self.shift.duration
 
     ##
     # Compare this non-working period to another such period by start time of

@@ -36,8 +36,12 @@ class Team(Named):
     # @return Percentage
     #
     def getPercentageWorked(self) -> float:
-        num = timedelta(seconds=self.rotation.getWorkingTime())
-        denom = timedelta(seconds=self.getRotationDuration()) 
+        working = self.rotation.getWorkingTime()
+        num = timedelta(seconds=working.total_seconds())
+        
+        rotationDuration = self.getRotationDuration()
+        denom = timedelta(seconds=rotationDuration.total_seconds()) 
+        
         return (num / denom) * 100.0
     
     ##
@@ -82,14 +86,14 @@ class Team(Named):
     #            Day with a shift instance
     # @return {@link ShiftInstance}
     #
-    def getShiftInstanceForDay(self, day: date) -> ShiftInstance:
-        instance = None
+    def getShiftInstanceForDay(self, day: datetime) -> ShiftInstance:
+        shiftInstance = None
         
         #shiftRotation = self.rotation
         
         if (self.rotation.getDuration() == timedelta(seconds=0)):
-            # no instance for that day
-            return instance
+            # no shiftInstance for that day
+            return shiftInstance
     
         dayInRotation = self.getDayInRotation(day)
 
@@ -97,10 +101,10 @@ class Team(Named):
         period = self.rotation.getPeriods()[dayInRotation - 1]
 
         if (period.isWorkingPeriod()):
-            startDateTime = datetime(day.year(), day.month(), day.day(), period.startTime.hour(),period.startTime.minute(), period.startTime.second() )
-            instance = ShiftInstance(period, startDateTime, self)
+            startDateTime = datetime(day.year, day.month, day.day, hour=period.startTime.hour, minute=period.startTime.minute, second=period.startTime.second)
+            shiftInstance = ShiftInstance(period, startDateTime, self)
 
-        return instance
+        return shiftInstance
 
     ##
     # Check to see if this day is a day off

@@ -101,9 +101,9 @@ class BaseTest(ABC, unittest.TestCase):
             self.assertTrue(team.rotationStart is not None)
 
             rotation = team.rotation
-            self.assertTrue(rotation.duration == rotationDays)
+            self.assertTrue(rotation.getDuration() == rotationDays)
             self.assertTrue(len(rotation.periods) > 0)
-            self.assertTrue(rotation.getWorkingTime().seconds() <= rotation.duration.seconds())
+            self.assertTrue(rotation.getWorkingTime().total_seconds() <= rotation.getDuration().total_seconds())
 
         self.assertTrue(ws.nonWorkingPeriods is not None)
 
@@ -115,7 +115,7 @@ class BaseTest(ABC, unittest.TestCase):
 
         # shift instances
         startDate = instanceReference
-        endDate = instanceReference + rotation.duration.days()
+        endDate = instanceReference + rotation.getDuration()
 
         days = ShiftUtils.toEpochDay(endDate) - ShiftUtils.toEpochDay(instanceReference) + 1
         day = startDate
@@ -124,16 +124,18 @@ class BaseTest(ABC, unittest.TestCase):
             instances = ws.getShiftInstancesForDay(day)
 
             for instance in instances:
-                self.assertTrue(instance.startTime < instance.getEndTime())
+                self.assertTrue(instance.startDateTime < instance.getEndTime())
                 self.assertTrue(instance.shift is not None)
                 self.assertTrue(instance.team is not None)
 
-                shift = instance.getShift()
+                shift = instance.shift
                 startTime = shift.startTime
                 endTime = shift.getEndTime()
 
                 self.assertTrue(shift.isInShift(startTime))
-                self.assertTrue(shift.isInShift(startTime + ONE_SECOND))
+                
+                plusSec = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) + timedelta(seconds=1)
+                self.assertTrue(shift.isInShift(plusSec.time()))
 
                 shiftDuration = instance.shift.duration
 

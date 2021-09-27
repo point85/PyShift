@@ -60,8 +60,8 @@ class TimePeriod(Named):
         self.startTime = startTime
 
     def __str__(self) -> str:
-        start = Localizer.instance().messageStr("period.start")
-        end = Localizer.instance().messageStr("period.end")
+        start = Localizer.instance().messageStr("period.start") + ": " + str(self.startTime) 
+        end = Localizer.instance().messageStr("period.end") + ": " + str(self.getEndTime())
 
-        return super().str() + ", " + start + ": " + self.startTime + " (" + self.duration + ")" + ", " + end + ": " + self.getEndTime()
+        return str(super()) + ", " + start + " (" + str(self.duration) + ")" + ", " + end 
 
