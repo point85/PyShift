@@ -1,12 +1,10 @@
-from abc import ABC
-
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException
 
 ##
 # Class Named represents a named object such as a Shift or Team.
 # 
-class Named(ABC):    
+class Named():    
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description

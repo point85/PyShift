@@ -1,5 +1,5 @@
 import unittest
-from abc import ABC
+from copy import deepcopy
 
 from datetime import datetime, timedelta
 from PyShift.workschedule.shift_utils import ShiftUtils
@@ -7,22 +7,22 @@ from PyShift.workschedule.shift_utils import ShiftUtils
 ##
 # Base class for testing shift plans
 # 
-class BaseTest(ABC, unittest.TestCase):     
+class BaseTest(unittest.TestCase):     
     def setUp(self):
-        # work schedule
-        self.schedule = None
+        # work workSchedule
+        self.workSchedule = None
     
         # reference date for start of shift rotations
         self.referenceDate = datetime(2016, 10, 31)
         
         # partial test flags
         self.testToString = True
-        self.testDeletions = True
+        self.testObjectDeletions = True
 
-    def testShifts(self, ws): 
-        self.assertTrue(len(ws.shifts) > 0)
+    def shiftTests(self): 
+        self.assertTrue(len(self.workSchedule.shifts) > 0)
 
-        for shift in ws.shifts: 
+        for shift in self.workSchedule.shifts: 
             total = shift.duration
             start = shift.startTime
             end = shift.getEndTime()
@@ -75,7 +75,7 @@ class BaseTest(ABC, unittest.TestCase):
                     self.fail("Bad working time")
     
             except:
-                # continue test
+                # expected
                 pass
 
             try: 
@@ -84,13 +84,14 @@ class BaseTest(ABC, unittest.TestCase):
                 if (total != shift.duration): 
                     self.fail("Bad working time")
     
-            except: 
+            except:
+                # expected
                 pass
             
-    def testTeams(self, ws, hoursPerRotation, rotationDays): 
-        self.assertTrue(len(ws.teams) > 0)
+    def teamTests(self, hoursPerRotation, rotationDays): 
+        self.assertTrue(len(self.workSchedule.teams) > 0)
 
-        for team in ws.teams:
+        for team in self.workSchedule.teams:
             self.assertTrue(len(team.name) > 0)
             self.assertTrue(len(team.description) > 0)
             self.assertTrue(team.getDayInRotation(team.rotationStart) == 1)
@@ -105,23 +106,22 @@ class BaseTest(ABC, unittest.TestCase):
             self.assertTrue(len(rotation.periods) > 0)
             self.assertTrue(rotation.getWorkingTime().total_seconds() <= rotation.getDuration().total_seconds())
 
-        self.assertTrue(ws.nonWorkingPeriods is not None)
+        self.assertTrue(self.workSchedule.nonWorkingPeriods is not None)
 
-    def testShiftInstances(self, ws, instanceReference): 
+    def shiftInstanceTests(self): 
         ONE_DAY = timedelta(days=1)
-        ONE_SECOND = timedelta(seconds=1)
         
-        rotation = ws.teams[0].rotation
+        rotation = self.workSchedule.teams[0].rotation
 
         # shift instances
-        startDate = instanceReference
-        endDate = instanceReference + rotation.getDuration()
+        startDate = self.referenceDate
+        endDate = self.referenceDate + rotation.getDuration()
 
-        days = ShiftUtils.toEpochDay(endDate) - ShiftUtils.toEpochDay(instanceReference) + 1
+        days = ShiftUtils.toEpochDay(endDate) - ShiftUtils.toEpochDay(self.referenceDate) + 1
         day = startDate
 
         for _i in range(days):
-            instances = ws.getShiftInstancesForDay(day)
+            instances = self.workSchedule.getShiftInstancesForDay(day)
 
             for instance in instances:
                 self.assertTrue(instance.startDateTime < instance.getEndTime())
@@ -134,96 +134,102 @@ class BaseTest(ABC, unittest.TestCase):
 
                 self.assertTrue(shift.isInShift(startTime))
                 
-                plusSec = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) + timedelta(seconds=1)
-                self.assertTrue(shift.isInShift(plusSec.time()))
+                delta = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) + timedelta(seconds=1)
+                self.assertTrue(shift.isInShift(delta.time()))
 
                 shiftDuration = instance.shift.duration
 
                 # midnight is special case
                 if (shiftDuration != timedelta(hours=24)): 
-                    self.assertFalse(shift.isInShift(startTime - ONE_SECOND))
+                    delta = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) - timedelta(seconds=1)
+                    self.assertFalse(shift.isInShift(delta.time()))
     
 
                 self.assertTrue(shift.isInShift(endTime))
-                self.assertTrue(shift.isInShift(endTime - ONE_SECOND))
+                delta = datetime(1970,1,1,hour=endTime.hour, minute=endTime.minute, second=endTime.second) - timedelta(seconds=1)
+                self.assertTrue(shift.isInShift(delta.time()))
 
                 if (shiftDuration != ONE_DAY):
-                    self.assertFalse(shift.isInShift(endTime + ONE_SECOND))
+                    delta = datetime(1970,1,1,hour=endTime.hour, minute=endTime.minute, second=endTime.second) + timedelta(seconds=1)
+                    self.assertFalse(shift.isInShift(delta.time()))
     
                 ldt = datetime.combine(day, startTime)
-                self.assertTrue(len(ws.getShiftInstancesForTime(ldt))> 0)
+                self.assertTrue(len(self.workSchedule.getShiftInstancesForTime(ldt))> 0)
 
-                ldt = datetime.combine(day, startTime + ONE_SECOND)
-                self.assertTrue(len(ws.getShiftInstancesForTime(ldt))> 0)
+                delta = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) + timedelta(seconds=1)
+                ldt = datetime.combine(day, delta.time())
+                self.assertTrue(len(self.workSchedule.getShiftInstancesForTime(ldt))> 0)
 
-                ldt = datetime.combine(day, startTime - ONE_SECOND)
+                delta = datetime(1970,1,1,hour=startTime.hour, minute=startTime.minute, second=startTime.second) - timedelta(seconds=1)
+                ldt = datetime.combine(day, delta.time())
 
-                for si in ws.getShiftInstancesForTime(ldt):
+                for si in self.workSchedule.getShiftInstancesForTime(ldt):
                     if (shiftDuration != timedelta(hours=24)): 
                         self.assertFalse(shift.name == si.shift.name)
 
                 ldt = datetime.combine(day, endTime)
-                self.assertTrue(len(ws.getShiftInstancesForTime(ldt))> 0)
+                self.assertTrue(len(self.workSchedule.getShiftInstancesForTime(ldt))> 0)
 
-                ldt = datetime.combine(day, endTime - ONE_SECOND)
-                self.assertTrue(len(ws.getShiftInstancesForTime(ldt)) > 0)
+                delta = datetime(1970,1,1,hour=endTime.hour, minute=endTime.minute, second=endTime.second) - timedelta(seconds=1)
+                ldt = datetime.combine(day, delta.time())
+                self.assertTrue(len(self.workSchedule.getShiftInstancesForTime(ldt)) > 0)
 
-                ldt = datetime.combine(day, endTime + ONE_SECOND)
+                delta = datetime(1970,1,1,hour=endTime.hour, minute=endTime.minute, second=endTime.second) + timedelta(seconds=1)
+                ldt = datetime.combine(day, delta.time())
 
-                for si in ws.getShiftInstancesForTime(ldt):
+                for si in self.workSchedule.getShiftInstancesForTime(ldt):
                     if (shiftDuration != ONE_DAY): 
                         self.assertFalse(shift.name == si.shift.name)
         
             day = day + ONE_DAY
 
-    def runBaseTest(self, ws, hoursPerRotation, rotationDays, instanceReference): 
+    def runBaseTest(self, hoursPerRotation, rotationDays): 
         # toString
         if (self.testToString): 
-            print(str(ws))
-
+            print(str(self.workSchedule))
             end = timedelta(days=rotationDays.days)
-            ws.printShiftInstances(instanceReference, instanceReference + end)
+            self.workSchedule.printShiftInstances(self.referenceDate, self.referenceDate + end)
 
-        self.assertTrue(len(ws.name) > 0)
-        self.assertTrue(len(ws.description) > 0)
-        self.assertTrue(ws.nonWorkingPeriods is not None)
+        self.assertTrue(len(self.workSchedule.name) > 0)
+        self.assertTrue(len(self.workSchedule.description) > 0)
+        self.assertTrue(self.workSchedule.nonWorkingPeriods is not None)
 
         # shifts
-        self.testShifts(ws)
+        self.shiftTests()
 
         # teams
-        self.testTeams(ws, hoursPerRotation, rotationDays)
+        self.teamTests(hoursPerRotation, rotationDays)
 
         # shift instances
-        self.testShiftInstances(ws, instanceReference)
+        self.shiftInstanceTests()
 
-        if (self.testDeletions): 
-            self.testDeletions()
+        if (self.testObjectDeletions): 
+            self.deletionTests()
 
-    def testDeletions(self): 
-        if (self.schedule is None):
+    def deletionTests(self): 
+        if (self.workSchedule is None):
             return 
         
         # team deletions
-        teams = self.schedule.teams
+        teams = deepcopy(self.workSchedule.teams)
 
         for team in teams: 
-            self.schedule.deleteTeam(team)
+            self.workSchedule.deleteTeam(team)
 
-        self.assertTrue(len(self.schedule.teams) == 0)
+        self.assertTrue(len(self.workSchedule.teams) == 0)
 
         # shift deletions
-        shifts = self.schedule.shifts
+        shifts = deepcopy(self.workSchedule.shifts)
 
         for shift in shifts:
-            self.schedule.deleteShift(shift)
+            self.workSchedule.deleteShift(shift)
 
-        self.assertTrue(len(self.schedule.shifts) == 0)
+        self.assertTrue(len(self.workSchedule.shifts) == 0)
 
         # non-working period deletions
-        periods = self.schedule.getNonWorkingPeriods()
+        periods = deepcopy(self.workSchedule.nonWorkingPeriods)
 
         for period in periods:
-            self.schedule.deleteNonWorkingPeriod(period)
+            self.workSchedule.deleteNonWorkingPeriod(period)
 
-        self.assertTrue(len(self.schedule.getNonWorkingPeriods()) == 0)
+        self.assertTrue(len(self.workSchedule.nonWorkingPeriods) == 0)

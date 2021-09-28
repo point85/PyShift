@@ -182,7 +182,7 @@ class Shift(TimePeriod):
                 answer = True
             else:
                 # before midnight
-                if (timeSecond >= Shift.secondOfDay()):
+                if (timeSecond >= Shift.secondOfDay(start)):
                     answer = True
     
         return answer

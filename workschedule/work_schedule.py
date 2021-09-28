@@ -1,4 +1,4 @@
-from datetime import date, time, datetime, timedelta
+from datetime import time, datetime, timedelta
 from operator import attrgetter
 
 from PyShift.workschedule.named import Named
@@ -96,7 +96,7 @@ class WorkSchedule(Named):
         workingShifts = []
 
         # day
-        candidateShifts = self.getShiftInstancesForDay(dateTime.date())
+        candidateShifts = self.getShiftInstancesForDay(dateTime)
 
         # check time now
         for instance in candidateShifts:

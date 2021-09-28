@@ -61,9 +61,9 @@ class Team(Named):
     #            LocalDate
     # @return day number in the rotation, starting at 1
     #
-    def getDayInRotation(self, date: date) -> int:
+    def getDayInRotation(self, dateTime: datetime) -> int:
         # calculate total number of days from start of rotation
-        dayTo = ShiftUtils.toEpochDay(date)
+        dayTo = ShiftUtils.toEpochDay(dateTime)
         start = ShiftUtils.toEpochDay(self.rotationStart)
         deltaDays = dayTo - start
 
