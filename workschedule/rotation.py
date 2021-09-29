@@ -140,9 +140,9 @@ class Rotation(Named):
     #
     def __str__(self) -> str:
         named = super().__str__()
-        rd = Localizer.instance().messageStr("rotation.duration")
-        rda = Localizer.instance().messageStr("rotation.days")
-        rw = Localizer.instance().messageStr("rotation.working")
+        rd = Localizer.instance().messageStr("rotation.duration") + ": " + str(self.getDuration())
+        rda = Localizer.instance().messageStr("rotation.days") + ": " + str(self.getDuration().total_seconds() / 86400) 
+        rw = Localizer.instance().messageStr("rotation.working") + ": " + str(self.getWorkingTime())
         rper = Localizer.instance().messageStr("rotation.periods")
         on = Localizer.instance().messageStr("rotation.on")
         off = Localizer.instance().messageStr("rotation.off")
@@ -151,11 +151,11 @@ class Rotation(Named):
 
         for period in self.periods:
             if (len(periods) > 0):
-                periods = periods + ", "
+                periods += ", "
             
             onOff = on if period.isWorkingPeriod() else off
             periods = periods + period.name + " (" + str(onOff) + ")"  
-
-        return named + "\n" + rper + ": [" + periods+ "], " + rd + ": " + str(self.getDuration()) + ", " + rda + ": " + str(timedelta(days=self.getDuration())) + ", " + rw + ": " + str(self.getWorkingTime())
+        
+        return named + "\n" + rper + ": [" + periods + "], " + rd  + ", " + rda + ", " + rw
 
         

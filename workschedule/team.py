@@ -49,10 +49,12 @@ class Team(Named):
     # 
     # @return Duration of hours worked per week
     #
-    def getHoursWorkedPerWeek(self) -> timedelta:
-        deltaDays = timedelta(days=self.rotation.getDuration())
-        secPerWeek = timedelta(seconds = self.rotation.getWorkingTime()) * (7.0 / deltaDays.days)
-        return timedelta(seconds=secPerWeek)
+    def getHoursWorkedPerWeek(self) -> float:
+        deltaDays = self.rotation.getDuration().total_seconds() / 86400
+        hours = self.rotation.getWorkingTime().total_seconds() / 3600
+        
+        hoursPerWeek = (hours * 7.0) / deltaDays
+        return hoursPerWeek
 
     ##
     # Get the day number in the rotation for this local date
@@ -215,14 +217,18 @@ class Team(Named):
     #
     def __str__(self) -> str:
         rpct = Localizer.instance().messageStr("rotation.percentage")
-        rs = Localizer.instance().messageStr("rotation.start")
+        rs = Localizer.instance().messageStr("rotation.start") + ": " + str(self.rotationStart) 
         avg = Localizer.instance().messageStr("team.hours")
         worked = rpct + ": %.2f" % self.getPercentageWorked()
+        
+        r = self.rotation.__str__()
+        hrs = str(self.getHoursWorkedPerWeek())
 
         text = ""
         try:
-            text = super().__str__() + ", " + rs + ": " + str(self.rotationStart) + ", " + str(self.rotation) + ", " + str(worked) + "%, " + str(avg) + ": " + str(self.getHoursWorkedPerWeek())
-        except:
+            text = super().__str__() + ", " + rs + ", " + str(self.rotation) + ", " + worked + "%, " + avg + ": " + str(self.getHoursWorkedPerWeek())
+        except Exception as e:
+            print(e)
             pass
     
         return text
