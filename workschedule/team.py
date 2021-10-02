@@ -49,7 +49,7 @@ class Team(Named):
     # 
     # @return Duration of hours worked per week
     #
-    def getHoursWorkedPerWeek(self) -> float:
+    def getAverageHoursWorkedPerWeek(self) -> float:
         deltaDays = self.rotation.getDuration().total_seconds() / 86400
         hours = self.rotation.getWorkingTime().total_seconds() / 3600
         
@@ -222,11 +222,11 @@ class Team(Named):
         worked = rpct + ": %.2f" % self.getPercentageWorked()
         
         r = self.rotation.__str__()
-        hrs = str(self.getHoursWorkedPerWeek())
+        hrs = str(self.getAverageHoursWorkedPerWeek())
 
         text = ""
         try:
-            text = super().__str__() + ", " + rs + ", " + str(self.rotation) + ", " + worked + "%, " + avg + ": " + str(self.getHoursWorkedPerWeek())
+            text = super().__str__() + ", " + rs + ", " + str(self.rotation) + ", " + worked + "%, " + avg + ": " + str(self.getAverageHoursWorkedPerWeek())
         except Exception as e:
             print(e)
             pass

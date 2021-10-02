@@ -1,4 +1,4 @@
-from datetime import datetime, date, time, timedelta
+from datetime import time, timedelta
 from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
 
@@ -6,15 +6,15 @@ class TestSnapSchedule(BaseTest):
 
     def testLowNight(self):
         description = "Low night demand"
-        schedule = WorkSchedule("Low Night Demand Plan", description)
+        self.workSchedule = WorkSchedule("Low Night Demand Plan", description)
 
         # 3 shifts
-        day = schedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=8))
-        swing = schedule.createShift("Swing", "Swing shift", time(15, 0, 0), timedelta(hours=8))
-        night = schedule.createShift("Night", "Night shift", time(23, 0, 0), timedelta(hours=8))
+        day = self.workSchedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=8))
+        swing = self.workSchedule.createShift("Swing", "Swing shift", time(15, 0, 0), timedelta(hours=8))
+        night = self.workSchedule.createShift("Night", "Night shift", time(23, 0, 0), timedelta(hours=8))
 
         # Team rotation
-        rotation = workSchedule.createschedule.createRotation("Low night demand", "Low night demand")
+        rotation = self.workSchedule.createRotation("Low night demand", "Low night demand")
         rotation.addSegment(day, 3, 0)
         rotation.addSegment(swing, 4, 3)
         rotation.addSegment(day, 4, 0)
@@ -25,15 +25,25 @@ class TestSnapSchedule(BaseTest):
         rotation.addSegment(night, 3, 4)
 
         # 6 teams
-        schedule.createTeam("Team1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=21))
-        schedule.createTeam("Team3", "Third team", rotation, self.referenceDate - timedelta(days=7))
-        schedule.createTeam("Team4", "Fourth team", rotation, self.referenceDate - timedelta(days=28))
-        schedule.createTeam("Team5", "Fifth team", rotation, self.referenceDate - timedelta(days=14))
-        schedule.createTeam("Team6", "Sixth team", rotation, self.referenceDate - timedelta(days=35))
+        self.workSchedule.createTeam("Team1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=21))
+        self.workSchedule.createTeam("Team3", "Third team", rotation, self.referenceDate - timedelta(days=7))
+        self.workSchedule.createTeam("Team4", "Fourth team", rotation, self.referenceDate - timedelta(days=28))
+        self.workSchedule.createTeam("Team5", "Fifth team", rotation, self.referenceDate - timedelta(days=14))
+        self.workSchedule.createTeam("Team6", "Sixth team", rotation, self.referenceDate - timedelta(days=35))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 6048 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 1344 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 1008 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 22.22, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 224 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 37.33, 2)
 
-        self.runBaseTest(schedule, timedelta(hours=224), timedelta(days=42), self.referenceDate)
-
+        self.runBaseTest(timedelta(hours=224), timedelta(days=42))
+"""
     def test3TeamFixed24(self):
         description = "Fire departments"
         schedule = WorkSchedule("3 Team Fixed 24 Plan", description)
@@ -215,7 +225,7 @@ class TestSnapSchedule(BaseTest):
         fromDay = date(self.referenceDate + timedelta(days=rotation.getDayCount()))
         fromDateTime = datetime.combine(fromDay, time(7, 0, 0))
         duration = schedule.calculateWorkingTime(fromDateTime, fromDateTime + timedelta(days=3))
-        self.assertTrue(duration == timedelta(hours=72))
+        self.self.assertTrue(duration == timedelta(hours=72))
 
         self.runBaseTest(schedule, timedelta(hours=24), timedelta(days=3), self.referenceDate)
 
@@ -363,3 +373,4 @@ class TestSnapSchedule(BaseTest):
         schedule.createTeam("Team 4", "Fourth team", rotation, self.referenceDate.minusDays(35))
 
         self.runBaseTest(schedule, timedelta(hours=336), timedelta(days=56), self.referenceDate)
+"""

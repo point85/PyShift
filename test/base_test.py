@@ -14,9 +14,7 @@ class BaseTest(unittest.TestCase):
     
         # reference date for start of shift rotations
         self.referenceDate = datetime(2016, 10, 31)
-        
-        # partial test flags
-        self.testToString = True
+
         self.testObjectDeletions = True
 
     def shiftTests(self): 
@@ -185,10 +183,9 @@ class BaseTest(unittest.TestCase):
 
     def runBaseTest(self, hoursPerRotation, rotationDays): 
         # toString
-        if (self.testToString): 
-            print(str(self.workSchedule))
-            end = timedelta(days=rotationDays.days)
-            self.workSchedule.printShiftInstances(self.referenceDate, self.referenceDate + end)
+        print(str(self.workSchedule))
+        end = timedelta(days=rotationDays.days)
+        self.workSchedule.printShiftInstances(self.referenceDate, self.referenceDate + end)
 
         self.assertTrue(len(self.workSchedule.name) > 0)
         self.assertTrue(len(self.workSchedule.description) > 0)
@@ -203,8 +200,8 @@ class BaseTest(unittest.TestCase):
         # shift instances
         self.shiftInstanceTests()
 
-        if (self.testObjectDeletions): 
-            self.deletionTests()
+        # deletions 
+        self.deletionTests()
 
     def deletionTests(self): 
         if (self.workSchedule is None):
