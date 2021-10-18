@@ -3,7 +3,7 @@ from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
 
 class TestSnapSchedule(BaseTest):
-
+    """
     def testLowNight(self):
         description = "Low night demand"
         self.workSchedule = WorkSchedule("Low Night Demand Plan", description)
@@ -43,39 +43,50 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 37.33, 2)
 
         self.runBaseTest(timedelta(hours=224), timedelta(days=42))
-"""
+
     def test3TeamFixed24(self):
         description = "Fire departments"
-        schedule = WorkSchedule("3 Team Fixed 24 Plan", description)
+        self.workSchedule = WorkSchedule("3 Team Fixed 24 Plan", description)
 
         # starts at 00:00 for 24 hours
-        shift = schedule.createShift("24 Hour", "24 hour shift", time(0, 0, 0), timedelta(hours=24))
+        shift = self.workSchedule.createShift("24 Hour", "24 hour shift", time(0, 0, 0), timedelta(hours=24))
 
         # Team rotation
-        rotation = workSchedule.createschedule.createRotation("3 Team Fixed 24 Plan", "3 Team Fixed 24 Plan")
+        rotation = self.workSchedule.createRotation("3 Team Fixed 24 Plan", "3 Team Fixed 24 Plan")
         rotation.addSegment(shift, 1, 1)
         rotation.addSegment(shift, 1, 1)
         rotation.addSegment(shift, 1, 4)
 
         # 3 teams
-        schedule.createTeam("Team1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=3))
-        schedule.createTeam("Team3", "Third team", rotation, self.referenceDate - timedelta(days=6))
+        self.workSchedule.createTeam("Team1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=3))
+        self.workSchedule.createTeam("Team3", "Third team", rotation, self.referenceDate - timedelta(days=6))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 648 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 216 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 216 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 33.33, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 72 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 56, 1)
 
-        self.runBaseTest(schedule, timedelta(hours=72), timedelta(hours=9), self.referenceDate)
-
+        self.runBaseTest(timedelta(hours=72), timedelta(days=9))
+    """
+    
     def test549(self):
         description = "Compressed work workSchedule."
-        schedule = WorkSchedule("5/4/9 Plan", description)
+        self.workSchedule = WorkSchedule("5/4/9 Plan", description)
 
         # 1 starts at 07:00 for 9 hours
-        day1 = schedule.createShift("Day1", "Day shift #1", time(7, 0, 0), timedelta(hours=9))
+        day1 = self.workSchedule.createShift("Day1", "Day shift #1", time(7, 0, 0), timedelta(hours=9))
 
         # 2 starts at 07:00 for 8 hours
-        day2 = schedule.createShift("Day2", "Day shift #2", time(7, 0, 0), timedelta(hours=8))
+        day2 = self.workSchedule.createShift("Day2", "Day shift #2", time(7, 0, 0), timedelta(hours=8))
 
         # Team rotation (28 days)
-        rotation = workSchedule.createschedule.createRotation("5/4/9 ", "5/4/9 ")
+        rotation = self.workSchedule.createRotation("5/4/9 ", "5/4/9 ")
         rotation.addSegment(day1, 4, 0)
         rotation.addSegment(day2, 1, 3)
         rotation.addSegment(day1, 4, 3)
@@ -84,11 +95,22 @@ class TestSnapSchedule(BaseTest):
         rotation.addSegment(day2, 1, 2)
 
         # 2 teams
-        schedule.createTeam("Team1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=14))
+        self.workSchedule.createTeam("Team1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team2", "Second team", rotation, self.referenceDate - timedelta(days=14))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 1344 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 320 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 672 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 23.81, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 160 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40, 1)
 
-        self.runBaseTest(schedule, timedelta(hours=160), timedelta(days=28), self.referenceDate)
+        self.runBaseTest(timedelta(hours=160), timedelta(days=28))
 
+    """
     def test9to5(self):
         description = "This is the basic 9 to 5 workSchedule plan for office employees. Every employee works 8 hrs a day from Monday to Friday."
         schedule = WorkSchedule("9 To 5 Plan", description)

@@ -96,6 +96,11 @@ class BaseTest(unittest.TestCase):
             hours = team.rotation.getWorkingTime()
             self.assertTrue(hours == hoursPerRotation)
             self.assertTrue(team.getPercentageWorked() > 0.0)
+            roationDuration = team.rotation.getDuration()
+            rds = roationDuration.total_seconds()
+            teamDuration = team.getRotationDuration()
+            tds = teamDuration.total_seconds()
+            daysDur = rotationDays.total_seconds()
             self.assertTrue(team.getRotationDuration() == rotationDays)
             self.assertTrue(team.rotationStart is not None)
 
