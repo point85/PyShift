@@ -353,8 +353,8 @@ class WorkSchedule(Named):
     # @return String
     def __str__(self) -> str:
         sch = Localizer.instance().messageStr("schedule")
-        rd = Localizer.instance().messageStr("rotation.duration") + ": " + str(self.getRotationDuration())
-        sw = Localizer.instance().messageStr("schedule.working") + ": " + str(self.getRotationWorkingTime())
+        rd = Localizer.instance().messageStr("rotation.duration") + ": " + ShiftUtils.formatTimedelta(self.getRotationDuration())
+        sw = Localizer.instance().messageStr("schedule.working") + ": " + ShiftUtils.formatTimedelta(self.getRotationWorkingTime())
         sf = Localizer.instance().messageStr("schedule.shifts")
         st = Localizer.instance().messageStr("schedule.teams")
         sc = Localizer.instance().messageStr("schedule.coverage")

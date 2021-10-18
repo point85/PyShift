@@ -2,6 +2,7 @@ from datetime import datetime, time, timedelta
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException 
+from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
 # Class TimePeriod is a named period of time with a specified duration and
@@ -63,5 +64,5 @@ class TimePeriod(Named):
         start = Localizer.instance().messageStr("period.start") + ": " + str(self.startTime) 
         end = Localizer.instance().messageStr("period.end") + ": " + str(self.getEndTime())
 
-        return super().__str__() + ", " + start + " (" + str(self.duration) + ")" + ", " + end 
+        return super().__str__() + ", " + start + " (" + ShiftUtils.formatTimedelta(self.duration) + ")" + ", " + end 
 

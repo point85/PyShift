@@ -6,6 +6,7 @@ from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.day_off import DayOff
 from PyShift.workschedule.shift_exception import PyShiftException
 from PyShift.workschedule.shift import Shift
+from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
 # This class represents part of an entire rotation. The segment starts with a
@@ -140,9 +141,9 @@ class Rotation(Named):
     #
     def __str__(self) -> str:
         named = super().__str__()
-        rd = Localizer.instance().messageStr("rotation.duration") + ": " + str(self.getDuration())
+        rd = Localizer.instance().messageStr("rotation.duration") + ": " + ShiftUtils.formatTimedelta(self.getDuration())
         rda = Localizer.instance().messageStr("rotation.days") + ": " + str(self.getDuration().total_seconds() / 86400) 
-        rw = Localizer.instance().messageStr("rotation.working") + ": " + str(self.getWorkingTime())
+        rw = Localizer.instance().messageStr("rotation.working") + ": " + ShiftUtils.formatTimedelta(self.getWorkingTime())
         rper = Localizer.instance().messageStr("rotation.periods")
         on = Localizer.instance().messageStr("rotation.on")
         off = Localizer.instance().messageStr("rotation.off")

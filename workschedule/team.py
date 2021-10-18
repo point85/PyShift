@@ -222,13 +222,12 @@ class Team(Named):
         worked = rpct + ": %.2f" % self.getPercentageWorked()
         
         r = self.rotation.__str__()
-        hrs = str(self.getAverageHoursWorkedPerWeek())
+        hrs = ": %.2f" % self.getAverageHoursWorkedPerWeek()
 
         text = ""
         try:
-            text = super().__str__() + ", " + rs + ", " + str(self.rotation) + ", " + worked + "%, " + avg + ": " + str(self.getAverageHoursWorkedPerWeek())
+            text = super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs
         except Exception as e:
-            print(e)
             pass
     
         return text

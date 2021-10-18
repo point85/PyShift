@@ -1,5 +1,5 @@
 from builtins import staticmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class ShiftUtils():
     @staticmethod
@@ -18,4 +18,13 @@ class ShiftUtils():
             day = day + 1                 
             
         return day
+    
+    @staticmethod
+    def formatTimedelta(duration: timedelta):
+        days, seconds = duration.days, duration.seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = (seconds % 60)
+        return str(days) + "D:" + str(hours) + "H:" + str(minutes) + "M"
+    
     
