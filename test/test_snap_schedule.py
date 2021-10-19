@@ -74,7 +74,7 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=72), timedelta(days=9))
     """
-    
+    """
     def test549(self):
         description = "Compressed work workSchedule."
         self.workSchedule = WorkSchedule("5/4/9 Plan", description)
@@ -109,45 +109,55 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40, 1)
 
         self.runBaseTest(timedelta(hours=160), timedelta(days=28))
-
+    """
     """
     def test9to5(self):
         description = "This is the basic 9 to 5 workSchedule plan for office employees. Every employee works 8 hrs a day from Monday to Friday."
-        schedule = WorkSchedule("9 To 5 Plan", description)
+        self.workSchedule = WorkSchedule("9 To 5 Plan", description)
 
         # starts at 09:00 for 8 hours
-        day = schedule.createShift("Day", "Day shift", time(9, 0, 0), timedelta(hours=8))
+        day = self.workSchedule.createShift("Day", "Day shift", time(9, 0, 0), timedelta(hours=8))
 
         # Team1 rotation (5 days)
-        rotation = workSchedule.createschedule.createRotation("9 To 5 ", "9 To 5 ")
+        rotation = self.workSchedule.createRotation("9 To 5 ", "9 To 5 ")
         rotation.addSegment(day, 5, 2)
 
         # 1 team, 1 shift
-        schedule.createTeam("Team", "One team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team", "One team", rotation, self.referenceDate)
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 168 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 40 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 168 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 23.81, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 40 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40, 1)
 
-        self.runBaseTest(schedule, timedelta(hours=40), timedelta(days=7), self.referenceDate)
-
+        self.runBaseTest(timedelta(hours=40), timedelta(days=7))
+    """
     def test8Plus12(self):
         description = "This is a fast rotation plan that uses 4 teams and a combination of three 8-hr shifts on weekdays and two 12-hr shifts on weekends to provide 24/7 coverage."
-        schedule = WorkSchedule("8 Plus 12 Plan", description)
+        self.workSchedule = WorkSchedule("8 Plus 12 Plan", description)
 
         # Day shift #1, starts at 07:00 for 12 hours
-        day1 = schedule.createShift("Day1", "Day shift #1", time(7, 0, 0), timedelta(hours=12))
+        day1 = self.workSchedule.createShift("Day1", "Day shift #1", time(7, 0, 0), timedelta(hours=12))
 
         # Day shift #2, starts at 07:00 for 8 hours
-        day2 = schedule.createShift("Day2", "Day shift #2", time(7, 0, 0), timedelta(hours=8))
+        day2 = self.workSchedule.createShift("Day2", "Day shift #2", time(7, 0, 0), timedelta(hours=8))
 
         # Swing shift, starts at 15:00 for 8 hours
-        swing = schedule.createShift("Swing", "Swing shift", time(15, 0, 0), timedelta(hours=8))
+        swing = self.workSchedule.createShift("Swing", "Swing shift", time(15, 0, 0), timedelta(hours=8))
 
         # Night shift #1, starts at 19:00 for 12 hours
-        night1 = schedule.createShift("Night1", "Night shift #1", time(19, 0, 0), timedelta(hours=12))
+        night1 = self.workSchedule.createShift("Night1", "Night shift #1", time(19, 0, 0), timedelta(hours=12))
 
         # Night shift #2, starts at 23:00 for 8 hours
-        night2 = schedule.createShift("Night2", "Night shift #2", time(23, 0, 0), timedelta(hours=8))
+        night2 = self.workSchedule.createShift("Night2", "Night shift #2", time(23, 0, 0), timedelta(hours=8))
 
         # shift rotation (28 days)
-        rotation = workSchedule.createschedule.createRotation("8 Plus 12", "8 Plus 12")
+        rotation = self.workSchedule.createRotation("8 Plus 12", "8 Plus 12")
         rotation.addSegment(day2, 5, 0)
         rotation.addSegment(day1, 2, 3)
         rotation.addSegment(night2, 2, 0)
@@ -156,13 +166,23 @@ class TestSnapSchedule(BaseTest):
         rotation.addSegment(swing, 5, 2)
 
         # 4 teams, rotating through 5 shifts
-        schedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=7))
-        schedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=14))
-        schedule.createTeam("Team 4", "Fourth team", rotation, self.referenceDate - timedelta(days=21))
+        self.workSchedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=7))
+        self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=14))
+        self.workSchedule.createTeam("Team 4", "Fourth team", rotation, self.referenceDate - timedelta(days=21))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 2688 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 672 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 672 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 25.00, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 168 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42, 1)
 
-        self.runBaseTest(schedule, timedelta(hours=168), timedelta(days=28), self.referenceDate)
-
+        self.runBaseTest(timedelta(hours=168), timedelta(days=28))
+    """
     def testICUInterns(self):
         description = "This plan supports a combination of 14-hr day shift , 15.5-hr cross-cover shift , and a 14-hr night shift for medical interns. "
         description = description + "The day shift and the cross-cover shift have the same start time (7:00AM). "
