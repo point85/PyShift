@@ -137,6 +137,7 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=40), timedelta(days=7))
     """
+    """
     def test8Plus12(self):
         description = "This is a fast rotation plan that uses 4 teams and a combination of three 8-hr shifts on weekdays and two 12-hr shifts on weekends to provide 24/7 coverage."
         self.workSchedule = WorkSchedule("8 Plus 12 Plan", description)
@@ -183,36 +184,48 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=168), timedelta(days=28))
     """
+    """
     def testICUInterns(self):
         description = "This plan supports a combination of 14-hr day shift , 15.5-hr cross-cover shift , and a 14-hr night shift for medical interns. "
         description = description + "The day shift and the cross-cover shift have the same start time (7:00AM). "
         description = description + "The night shift starts at around 10:00PM and ends at 12:00PM on the next day."
 
-        schedule = WorkSchedule("ICU Interns Plan", description)
+        self.workSchedule = WorkSchedule("ICU Interns Plan", description)
 
         # Day shift #1, starts at 07:00 for 15.5 hours
-        crossover = schedule.createShift("Crossover", "Day shift #1 cross-over", time(7, 0, 0),
+        crossover = self.workSchedule.createShift("Crossover", "Day shift #1 cross-over", time(7, 0, 0),
             timedelta(hours=15) + timedelta(minutes=30))
 
         # Day shift #2, starts at 07:00 for 14 hours
-        day = schedule.createShift("Day", "Day shift #2", time(7, 0, 0), timedelta(hours=14))
+        day = self.workSchedule.createShift("Day", "Day shift #2", time(7, 0, 0), timedelta(hours=14))
 
         # Night shift, starts at 22:00 for 14 hours
-        night = schedule.createShift("Night", "Night shift", time(22, 0, 0), timedelta(hours=14))
+        night = self.workSchedule.createShift("Night", "Night shift", time(22, 0, 0), timedelta(hours=14))
 
         # Team1 rotation
-        rotation = workSchedule.createschedule.createRotation("ICU", "ICU")
+        rotation = self.workSchedule.createRotation("ICU", "ICU")
         rotation.addSegment(day, 1, 0)
         rotation.addSegment(crossover, 1, 0)
         rotation.addSegment(night, 1, 1)
 
-        schedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team 2", "Second team", rotation, self.referenceDate.minusDays(3))
-        schedule.createTeam("Team 3", "Third team", rotation, self.referenceDate.minusDays(2))
-        schedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate.minusDays(1))
+        self.workSchedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=3))
+        self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=2))
+        self.workSchedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate - timedelta(days=1))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 384 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 174 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 96 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 45.31, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 43 * 3600 + 30 * 60)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 76.125, 1)
 
-        self.runBaseTest(schedule, timedelta(minutes=2610), timedelta(days=4), self.referenceDate)
-
+        self.runBaseTest(timedelta(minutes=2610), timedelta(days=4))
+    """
+    
     def testDupont(self):
         description = "The DuPont 12-hour rotating shift workSchedule uses 4 teams (crews) and 2 twelve-hour shifts to provide 24/7 coverage. "
         description = description + "It consists of a 4-week cycle where each team works 4 consecutive night shifts, "
@@ -220,28 +233,38 @@ class TestSnapSchedule(BaseTest):
         description = description + "followed by 3 days off duty, work 4 consecutive day shift, then have 7 consecutive days off duty. "
         description = description + "Personnel works an average 42 hours per week."
 
-        schedule = WorkSchedule("DuPont Schedule", description)
+        self.workSchedule = WorkSchedule("DuPont Schedule", description)
 
         # Day shift, starts at 07:00 for 12 hours
-        day = schedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=12))
+        day = self.workSchedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=12))
 
         # Night shift, starts at 19:00 for 12 hours
-        night = schedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
+        night = self.workSchedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
         # Team1 rotation
-        rotation = workSchedule.createschedule.createRotation("DuPont", "DuPont")
+        rotation =self.workSchedule.createRotation("DuPont", "DuPont")
         rotation.addSegment(night, 4, 3)
         rotation.addSegment(day, 3, 1)
         rotation.addSegment(night, 3, 3)
         rotation.addSegment(day, 4, 7)
 
-        schedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
-        schedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=7))
-        schedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=14))
-        schedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate - timedelta(days=21))
+        self.workSchedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=7))
+        self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=14))
+        self.workSchedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate - timedelta(days=21))
+        
+        # specific checks
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 2688 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 672 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 672 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 25.00, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 168 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42.0, 1)
 
-        self.runBaseTest(schedule, timedelta(hours=168), timedelta(days=28), self.referenceDate)
-
+        self.runBaseTest(timedelta(hours=168), timedelta(days=28))
+    """
     def testDNO(self):
         description = "This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. "
         description = description + "Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off."

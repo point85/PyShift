@@ -219,10 +219,10 @@ class Team(Named):
         rpct = Localizer.instance().messageStr("rotation.percentage")
         rs = Localizer.instance().messageStr("rotation.start") + ": " + str(self.rotationStart) 
         avg = Localizer.instance().messageStr("team.hours")
-        worked = rpct + ": %.2f" % self.getPercentageWorked()
+        worked = rpct + ": %.3f" % self.getPercentageWorked()
         
         r = self.rotation.__str__()
-        hrs = ": %.2f" % self.getAverageHoursWorkedPerWeek()
+        hrs = ": %.3f" % self.getAverageHoursWorkedPerWeek()
 
         text = ""
         try:
