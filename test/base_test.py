@@ -96,11 +96,6 @@ class BaseTest(unittest.TestCase):
             hours = team.rotation.getWorkingTime()
             self.assertTrue(hours == hoursPerRotation)
             self.assertTrue(team.getPercentageWorked() > 0.0)
-            roationDuration = team.rotation.getDuration()
-            rds = roationDuration.total_seconds()
-            teamDuration = team.getRotationDuration()
-            tds = teamDuration.total_seconds()
-            daysDur = rotationDays.total_seconds()
             self.assertTrue(team.getRotationDuration() == rotationDays)
             self.assertTrue(team.rotationStart is not None)
 
@@ -111,14 +106,14 @@ class BaseTest(unittest.TestCase):
 
         self.assertTrue(self.workSchedule.nonWorkingPeriods is not None)
 
-    def shiftInstanceTests(self): 
+    def shiftInstanceTests(self, beginDate): 
         ONE_DAY = timedelta(days=1)
         
         rotation = self.workSchedule.teams[0].rotation
 
         # shift instances
-        startDate = self.referenceDate
-        endDate = self.referenceDate + rotation.getDuration()
+        startDate = beginDate
+        endDate = beginDate + rotation.getDuration()
 
         days = ShiftUtils.toEpochDay(endDate) - ShiftUtils.toEpochDay(self.referenceDate) + 1
         day = startDate
@@ -186,11 +181,16 @@ class BaseTest(unittest.TestCase):
         
             day = day + ONE_DAY
 
-    def runBaseTest(self, hoursPerRotation, rotationDays): 
+    def runBaseTest(self, hoursPerRotation, rotationDays, startingDate = None): 
+        beginDate = self.referenceDate
+        
+        if (startingDate is not None):
+            beginDate = startingDate
+            
         # toString
         print(str(self.workSchedule))
         end = timedelta(days=rotationDays.days)
-        self.workSchedule.printShiftInstances(self.referenceDate, self.referenceDate + end)
+        self.workSchedule.printShiftInstances(beginDate, beginDate + end)
 
         self.assertTrue(len(self.workSchedule.name) > 0)
         self.assertTrue(len(self.workSchedule.description) > 0)
@@ -203,7 +203,7 @@ class BaseTest(unittest.TestCase):
         self.teamTests(hoursPerRotation, rotationDays)
 
         # shift instances
-        self.shiftInstanceTests()
+        self.shiftInstanceTests(beginDate)
 
         # deletions 
         self.deletionTests()

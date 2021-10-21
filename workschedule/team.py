@@ -70,7 +70,7 @@ class Team(Named):
         deltaDays = dayTo - start
 
         if (deltaDays < 0):
-            msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, date)
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, dateTime)
             raise PyShiftException(msg)
         
         duration = int(self.rotation.getDuration().total_seconds())
