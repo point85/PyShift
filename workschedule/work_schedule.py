@@ -167,7 +167,7 @@ class WorkSchedule(Named):
 
                 for period in rotation.periods:
                     if (period == inUseShift):
-                        msg = Localizer.instance().messageStr("shift.in.use").format(shift.getName())
+                        msg = Localizer.instance().messageStr("shift.in.use").format(shift.name)
                         raise PyShiftException(msg)
                 
         self.shifts.remove(shift)
