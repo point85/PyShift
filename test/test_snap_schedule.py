@@ -176,7 +176,7 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=40), timedelta(days=7))
     """
-       
+    """   
     def test8Plus12(self):
         description = "This is a fast rotation plan that uses 4 teams and a combination of three 8-hr shifts on weekdays and two 12-hr shifts on weekends to provide 24/7 coverage."
         self.workSchedule = WorkSchedule("8 Plus 12 Plan", description)
@@ -230,7 +230,7 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42, 1)
 
         self.runBaseTest(timedelta(hours=168), timedelta(days=28))
-    
+    """
     """
     def testICUInterns(self):
         description = "This plan supports a combination of 14-hr day shift , 15.5-hr cross-cover shift , and a 14-hr night shift for medical interns. "
@@ -261,6 +261,14 @@ class TestSnapSchedule(BaseTest):
         self.workSchedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate - timedelta(days=1))
         
         # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 1223 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 384 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 174 * 3600)
         
@@ -271,9 +279,9 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 76.125, 1)
 
         self.runBaseTest(timedelta(minutes=2610), timedelta(days=4))
+    """
     
-    
-    
+    """        
     def testDupont(self):
         description = "The DuPont 12-hour rotating shift workSchedule uses 4 teams (crews) and 2 twelve-hour shifts to provide 24/7 coverage. "
         description = description + "It consists of a 4-week cycle where each team works 4 consecutive night shifts, "
@@ -302,6 +310,14 @@ class TestSnapSchedule(BaseTest):
         self.workSchedule.createTeam("Team 4", "Forth team", rotation, self.referenceDate - timedelta(days=21))
         
         # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 2688 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 672 * 3600)
         
@@ -313,8 +329,8 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=168), timedelta(days=28))
     
-    
-    
+    """
+    """
     def testDNO(self):
         description = "This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. "
         description = description + "Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off."
@@ -337,6 +353,14 @@ class TestSnapSchedule(BaseTest):
         self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=2))
 
         # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)  
+              
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 216 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 72 * 3600)
         
@@ -347,8 +371,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 56.0, 1)
 
         self.runBaseTest(timedelta(hours=24), timedelta(days=3))
-       
-    
+    """   
+    """
     def test21TeamFixed(self):
         description = "".join(["This plan is a fixed (no rotation) plan that uses 21 teams and three 8-hr shifts to provide 24/7 coverage. "
         ,"It maximizes the number of consecutive days off while still averaging 40 hours per week. "
@@ -422,6 +446,14 @@ class TestSnapSchedule(BaseTest):
         self.workSchedule.createTeam("Team 21", "7th night team", nightRotation, self.referenceDate + timedelta(days=42))
         
         # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 3360 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0) 
+                
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 24696 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 5880 * 3600)
         
@@ -432,8 +464,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40.0, 1)
 
         self.runBaseTest(timedelta(hours=280), timedelta(days=49), self.referenceDate + timedelta(days=49))
-    
-    
+    """
+    """
     def testTwoTeam(self):
         description = "".join(["This is a fixed (no rotation) plan that uses 2 teams and two 12-hr shifts to provide 24/7 coverage. "
         ,"One team will be permanently on the day shift and the other will be on the night shift."])
@@ -461,14 +493,10 @@ class TestSnapSchedule(BaseTest):
         fromDateTime = datetime.combine(self.laterDate, self.laterTime)
         toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
         
-        for team in self.workSchedule.teams:
-            workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
-            print("Team: " + team.name + " WT: " + str(workingTime))
-        
-        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime);
-        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime);
-        self.assertTrue(workingTime.total_seconds() == 1320 * 3600);
-        self.assertTrue(nonWorkingTime.total_seconds() == 0);
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 1320 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0) 
         
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 48 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 24 * 3600)
@@ -481,7 +509,7 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=12), timedelta(days=1))
 
-       
+    """   
     def testPanama(self):
         description = "".join(["This is a slow rotation plan that uses 4 teams and two 12-hr shifts to provide 24/7 coverage. "
         , "The working and non-working days follow this pattern: 2 days on, 2 days off, 3 days on, 2 days off, 2 days on, 3 days off. "
@@ -521,6 +549,14 @@ class TestSnapSchedule(BaseTest):
         self.workSchedule.createTeam("Team 4", "Fourth team", rotation, self.referenceDate - timedelta(days=35))
         
         # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0) 
+        
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 5376 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 1344 * 3600)
         
@@ -531,4 +567,4 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42.0, 1)
 
         self.runBaseTest(timedelta(hours=336), timedelta(days=56))
-    """
+    

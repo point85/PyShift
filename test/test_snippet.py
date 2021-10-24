@@ -36,10 +36,10 @@ class TestSnippet(BaseTest):
             workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
             print("Team: " + team.name + " WT: " + str(workingTime))
         
-        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime);
-        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime);
-        self.assertTrue(workingTime.total_seconds() == 1320 * 3600);
-        self.assertTrue(nonWorkingTime.total_seconds() == 0);
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 1320 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
         
         self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 48 * 3600)
         self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 24 * 3600)

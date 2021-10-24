@@ -47,7 +47,7 @@ class Shift(TimePeriod):
     #            of break
     # @return:@link Break}
     #
-    def createBreak(self, name: str, description: str, startTime: time, duration: timedelta) ->Break:
+    def createBreak(self, name: str, description: str, startTime: time, duration: timedelta) -> Break:
         period = Break(name, description, startTime, duration)
         self.addBreak(period)
         return period

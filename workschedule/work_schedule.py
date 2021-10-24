@@ -51,8 +51,8 @@ class WorkSchedule(Named):
             self.nonWorkingPeriods.remove(period)
             
     @staticmethod
-    def getPeriodKey(shift: Shift) -> time:
-        return shift.startTime
+    def getPeriodKey(period: NonWorkingPeriod) -> time:
+        return period.startDateTime
     ##
     # Get the list of shift instances for the specified date that start in that
     # date
@@ -284,7 +284,7 @@ class WorkSchedule(Named):
         toSeconds = ShiftUtils.toEpochSecond(toTime)
 
         for period in self.nonWorkingPeriods:
-            start = period.startTime
+            start = period.startDateTime
             startSeconds = ShiftUtils.toEpochSecond(start)
 
             end = period.getEndDateTime()
@@ -306,7 +306,7 @@ class WorkSchedule(Named):
                 if (toSeconds < endSeconds):
                     endSeconds = toSeconds
 
-                timeSum = timeSum + (endSeconds - startSeconds)
+                timeSum = timeSum + timedelta(seconds=(endSeconds - startSeconds))
         
             if (toSeconds <= endSeconds):
                 break
