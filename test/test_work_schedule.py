@@ -152,4 +152,47 @@ class TestWorkSchedule(BaseTest):
 
         lunch2 = shift2.createBreak("Lunch2", "Lunch", time(12, 0, 0), timedelta(minutes=60))
         shift.removeBreak(lunch2)
+        
+        # ok to delete
+        schedule2 = WorkSchedule("Exceptions2", "Test exceptions2")
+        schedule2.name = "Schedule 2"
+        schedule2.description = "a description"
+
+        schedule2.deleteShift(shift)
+        schedule2.deleteTeam(team)
+        schedule2.deleteNonWorkingPeriod(period)
+
+        # nulls
+        try:
+            self.workSchedule.createShift("1", "1", None, timedelta(minutes=60))
+            self.fail()
+        except Exception as e:
+            # expected
+            print(str(e))
+            pass
+
+        try:
+            self.workSchedule.createShift("1", "1", shiftStart, None)
+            self.fail()
+        except Exception as e:
+            # expected
+            print(str(e))
+            pass
+
+        try:
+            self.workSchedule.createShift(None, "1", shiftStart, timedelta(minutes=60))
+            self.fail()
+        except Exception as e:
+            # expected
+            print(str(e))
+            pass
+
+        self.assertFalse(shift == rotation)
+
+        # hashcode()
+        team.__hash__()
+        teams = {}
+        teams[team.name] = team
+        teams[team.name]
+        
     
