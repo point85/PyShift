@@ -86,7 +86,7 @@ class Rotation(Named):
     # @return Day count
     #
     def getDayCount(self) -> int:
-        return len(self.periods)
+        return len(self.getPeriods())
 
     ##
     # Get the duration of this rotation

@@ -36,26 +36,26 @@ A shift instance is the duration of time from a specified date and time of day a
 ## Examples
 The DNO schedule discussed above is defined as follows.
 
-```java
-String description = "This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. "
-		+ "Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off.";
+```python
+        description = "This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. "
+        description = description + "Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off."
 
-WorkSchedule schedule = new WorkSchedule("DNO Plan", description);
+        self.workSchedule = WorkSchedule("DNO Plan", description)
 
-// Day shift, starts at 07:00 for 12 hours
-Shift day = schedule.createShift("Day", "Day shift", LocalTime.of(7, 0, 0), Duration.ofHours(12));
+        # Day shift, starts at 07:00 for 12 hours
+        day = self.workSchedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=12))
 
-// Night shift, starts at 19:00 for 12 hours
-Shift night = schedule.createShift("Night", "Night shift", LocalTime.of(19, 0, 0), Duration.ofHours(12));
+        # Night shift, starts at 19:00 for 12 hours
+        night = self.workSchedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
-// rotation
-Rotation rotation = new Rotation("DNO", "DNO");
-rotation.addSegment(day, 1, 0);
-rotation.addSegment(night, 1, 1);
+        # rotation
+        rotation = self.workSchedule.createRotation("DNO", "DNO")
+        rotation.addSegment(day, 1, 0)
+        rotation.addSegment(night, 1, 1)
 
-schedule.createTeam("Team 1", "First team", rotation, referenceDate);
-schedule.createTeam("Team 2", "Second team", rotation, referenceDate.minusDays(1));
-schedule.createTeam("Team 3", "Third team", rotation, referenceDate.minusDays(2));
+        self.workSchedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=1))
+        self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=2))
 ```
 To obtain the working time over three days starting at 07:00, the following methods are called:
 

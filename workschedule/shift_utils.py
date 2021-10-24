@@ -1,5 +1,6 @@
 from builtins import staticmethod
-from datetime import datetime, timedelta
+from datetime import datetime, date, time, timedelta
+from abc import abstractstaticmethod
 
 class ShiftUtils():
     @staticmethod
@@ -8,15 +9,11 @@ class ShiftUtils():
         return round(datetime.timestamp(instant))
 
     @staticmethod
-    def toEpochDay(instant: datetime) -> int:
+    def toEpochDay(day: date) -> int:
+        instant = datetime.combine(day, time.min)
         # days from Unix epoch
         totalSeconds = datetime.timestamp(instant)
         day = int(totalSeconds/86400)
-        remainder = totalSeconds%86400  
-            
-        if (remainder > 0):
-            day = day + 1                 
-            
         return day
     
     @staticmethod
@@ -26,5 +23,10 @@ class ShiftUtils():
         minutes = (seconds % 3600) // 60
         seconds = (seconds % 60)
         return str(days) + "D:" + str(hours) + "H:" + str(minutes) + "M"
+    
+    @staticmethod
+    def toSecondOfDay(dayTime : time) -> int:
+        return dayTime.hour * 3600 + dayTime.minute * 60 * dayTime.second
+    
     
     

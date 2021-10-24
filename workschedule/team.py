@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, time, timedelta
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.shift_utils import ShiftUtils
@@ -63,14 +63,14 @@ class Team(Named):
     #            LocalDate
     # @return day number in the rotation, starting at 1
     #
-    def getDayInRotation(self, dateTime: datetime) -> int:
+    def getDayInRotation(self, day: date) -> int:
         # calculate total number of days from start of rotation
-        dayTo = ShiftUtils.toEpochDay(dateTime)
+        dayTo = ShiftUtils.toEpochDay(day)
         start = ShiftUtils.toEpochDay(self.rotationStart)
         deltaDays = dayTo - start
 
         if (deltaDays < 0):
-            msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, dateTime)
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(self.rotationStart, day)
             raise PyShiftException(msg)
         
         duration = int(self.rotation.getDuration().total_seconds())
@@ -88,7 +88,7 @@ class Team(Named):
     #            Day with a shift instance
     # @return {@link ShiftInstance}
     #
-    def getShiftInstanceForDay(self, day: datetime) -> ShiftInstance:
+    def getShiftInstanceForDay(self, day: date) -> ShiftInstance:
         shiftInstance = None
         
         #shiftRotation = self.rotation
@@ -160,15 +160,15 @@ class Team(Named):
             lastShift = yesterdayInstance.shift
     
         # step through each day until done
-        while (thisDate < toDate):
+        while (thisDate <= toDate):
             if (lastShift is not None and lastShift.spansMidnight()):
                 # check for days in the middle of the time period
                 lastDay = True if (thisDate == toDate) else False
                 
-                if (not lastDay or (lastDay and toTime.seconds() != 0)):
+                if (not lastDay or (lastDay and toTime != time.min)):
                     # add time after midnight in this day
-                    afterMidnightSecond = lastShift.getEnd().toSecondOfDay()
-                    fromSecond = thisTime.toSecondOfDay()
+                    afterMidnightSecond = ShiftUtils.toSecondOfDay(lastShift.getEndTime())
+                    fromSecond = ShiftUtils.toSecondOfDay(thisTime)
 
                     if (afterMidnightSecond > fromSecond):
                         timeSum = timeSum + timedelta(seconds=(afterMidnightSecond - fromSecond))
@@ -184,7 +184,7 @@ class Team(Named):
                 if (thisDate == toDate):
                     duration = lastShift.calculateTotalWorkingTime(thisTime, toTime, True)
                 else:
-                    duration = lastShift.calculateTotalWorkingTime(thisTime, datetime.time().max, True)
+                    duration = lastShift.calculateTotalWorkingTime(thisTime, time.max, True)
             
                 timeSum = timeSum + duration
             else:
@@ -201,7 +201,7 @@ class Team(Named):
 
             # move ahead n days starting at midnight
             thisDate = thisDate + timedelta(days=n)
-            thisTime = datetime.time().min
+            thisTime = time.min
         # end day loop
 
         return timeSum

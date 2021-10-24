@@ -1,4 +1,4 @@
-from datetime import time, datetime, timedelta
+from datetime import date, time, datetime, timedelta
 from operator import attrgetter
 
 from PyShift.workschedule.named import Named
@@ -40,7 +40,7 @@ class WorkSchedule(Named):
     def deleteTeam(self, team: Team):
         if (team in self.teams):
             self.teams.remove(team)
-
+        
     ##
     # Remove a non-working period from the schedule
     # 
@@ -60,7 +60,7 @@ class WorkSchedule(Named):
     # @param day
     #            LocalDate
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForDay(self, day: datetime) -> [ShiftInstance]:
+    def getShiftInstancesForDay(self, day: date) -> [ShiftInstance]:
         workingShifts = []
 
         # for each team see if there is a working shift
@@ -96,7 +96,7 @@ class WorkSchedule(Named):
         workingShifts = []
 
         # day
-        candidateShifts = self.getShiftInstancesForDay(dateTime)
+        candidateShifts = self.getShiftInstancesForDay(dateTime.date())
 
         # check time now
         for instance in candidateShifts:
@@ -263,11 +263,11 @@ class WorkSchedule(Named):
         timeSum = timeSum - nonWorking
 
         # clip if negative
-        if (timeSum < 0):
+        if (timeSum.total_seconds() < 0):
             timeSum = timedelta()
 
         return timeSum
-
+    
     ##
     # Calculate the non-working time between the specified dates and times of
     # day.
@@ -323,7 +323,7 @@ class WorkSchedule(Named):
     # @throws Exception
     #             exception
 
-    def printShiftInstances(self, start: datetime, end: datetime):
+    def printShiftInstances(self, start: date, end: date):
         if (start > end):
             msg = Localizer.instance().messageStr("end.earlier.than.start").format(start, end)
             raise PyShiftException(msg)

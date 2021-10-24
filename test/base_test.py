@@ -1,7 +1,7 @@
 import unittest
 from copy import deepcopy
 
-from datetime import datetime, timedelta
+from datetime import datetime, date, time, timedelta
 from PyShift.workschedule.shift_utils import ShiftUtils
 
 ##
@@ -13,7 +13,11 @@ class BaseTest(unittest.TestCase):
         self.workSchedule = None
     
         # reference date for start of shift rotations
-        self.referenceDate = datetime(2016, 10, 31)
+        self.referenceDate = date(2016, 10, 31)
+        
+        # a later date
+        self.laterDate = date(2021, 10, 1)
+        self.laterTime = time(7, 0, 0)
 
         self.testObjectDeletions = True
 
