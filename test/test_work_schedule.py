@@ -378,7 +378,7 @@ class TestWorkSchedule(BaseTest):
         workingTime = shift.calculateTotalWorkingTime(time(shiftEnd.hour-1), shiftEnd, False)
         self.assertTrue(workingTime.total_seconds() == 3600)
     """    
-    
+    """
     def testTeamWorkingTime(self):
         self.workSchedule = WorkSchedule("Team Working Time", "Test team working time")
         shiftDuration = timedelta(hours=12)
@@ -488,4 +488,104 @@ class TestWorkSchedule(BaseTest):
         toDateTime = fromDateTime + timedelta(days=4)
         workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
         self.assertTrue(workingTime == shiftDuration + shiftDuration)
+    """
+    
+    def testNonWorkingTime(self): 
+        self.workSchedule =  WorkSchedule("Non Working Time", "Test non working time")
+        localDate = date(2017, 1, 1)
+        localTime = time(7, 0, 0)
+
+        period1 = self.workSchedule.createNonWorkingPeriod("Day1", "First test day",
+                datetime.combine(localDate, time.min), timedelta(hours=24))
+        period2 = self.workSchedule.createNonWorkingPeriod("Day2", "First test day",
+                datetime.combine(localDate, localTime) + timedelta(days=7), timedelta(hours=24))
+
+        fromDateTime = datetime.combine(localDate, localTime)
+        toDateTime = datetime.combine(localDate, time(localTime.hour+1))
+
+        # case #1
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=1))
+
+        # case #2
+        fromDateTime = datetime.combine(localDate, localTime) - timedelta(days=1)
+        toDateTime = datetime.combine(localDate, localTime) + timedelta(days=1)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=24))
+
+        # case #3
+        fromDateTime = datetime.combine(localDate, localTime) - timedelta(days=1)
+        toDateTime = datetime.combine(localDate, time(localTime.hour+1)) - timedelta(days=1)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=0))
+
+        # case #4
+        fromDateTime = datetime.combine(localDate, localTime) + timedelta(days=1)
+        toDateTime = datetime.combine(localDate, time(localTime.hour+1)) + timedelta(days=1)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=0))
+
+        # case #5
+        fromDateTime = datetime.combine(localDate, localTime) - timedelta(days=1)
+        toDateTime = datetime.combine(localDate, localTime)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=7))
+
+        # case #6
+        fromDateTime = datetime.combine(localDate, localTime)
+        toDateTime = datetime.combine(localDate, localTime) + timedelta(days=1)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=17))
+
+        # case #7
+        fromDateTime = datetime.combine(localDate, time(hour=12))
+        toDateTime = datetime.combine(localDate, time(hour=12)) + timedelta(days=7)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=17))
+
+        # case #8
+        fromDateTime = datetime.combine(localDate, time(hour=12)) - timedelta(days=1)
+        toDateTime = datetime.combine(localDate, time(hour=12)) + timedelta(days=8)
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=48))
+
+        # case #9
+        self.workSchedule.deleteNonWorkingPeriod(period1)
+        self.workSchedule.deleteNonWorkingPeriod(period2)
+        fromDateTime = datetime.combine(localDate, localTime)
+        toDateTime = datetime.combine(localDate, time(localTime.hour+1))
+
+        # case #10
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=0))
+
+        shiftDuration = timedelta(hours=8)
+        shiftStart = time(7, 0, 0)
+
+        shift = self.workSchedule.createShift("Work Shift1", "Working time shift", shiftStart, shiftDuration)
+
+        rotation = self.workSchedule.createRotation("Case 10", "Case10")
+        rotation.addSegment(shift, 1, 1)
+
+        startRotation = date(2017, 1, 1)
+        team = self.workSchedule.createTeam("Team", "Team", rotation, startRotation)
+        team.rotationStart = startRotation
+
+        period1 = self.workSchedule.createNonWorkingPeriod("Day1", "First test day", datetime.combine(localDate, time.min),
+            timedelta(hours=24))
+
+        mark = localDate + timedelta(days=rotation.getDayCount())
+        fromDateTime = datetime.combine(mark, time(hour=localTime.hour-2))
+        toDateTime = datetime.combine(mark, time(hour=localTime.hour-1))
+
+        # case #11
+        duration = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=0))
+
+        # case #12
+        fromDateTime = datetime.combine(localDate, shiftStart)
+        toDateTime = datetime.combine(localDate, time(localTime.hour+8))
+
+        duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(duration == timedelta(hours=8))
     
