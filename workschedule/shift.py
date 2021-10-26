@@ -53,27 +53,27 @@ class Shift(TimePeriod):
         return period
     
     @staticmethod
-    def secondOfDay(time: time) -> int:
-        return time.hour * 3600 + time.minute * 60 + time.second
+    def secondOfDay(dayTime: time) -> int:
+        return dayTime.hour * 3600 + dayTime.minute * 60 + dayTime.second
     
     @staticmethod
-    def toRoundedSecond(time: time) -> int:
-        second = Shift.secondOfDay(time)
+    def toRoundedSecond(dayTime: time) -> int:
+        second = Shift.secondOfDay(dayTime)
 
-        if (time.microsecond > 500000):
+        if (dayTime.microsecond > 500000):
             second = second + 1
 
         return second
 
     ##
-    # Calculate the working time between the specified times of day. The shift
+    # Calculate the working dayTime between the specified times of day. The shift
     # must not span midnight.
     # 
     # @param fromTime
-    #            starting time
+    #            starting dayTime
     # @param toTime
-    #            Ending time
-    # @return of working time
+    #            Ending dayTime
+    # @return of working dayTime
     #
     def calculateWorkingTime(self, fromTime:time, toTime:time) -> timedelta:
         if (self.spansMidnight()):
