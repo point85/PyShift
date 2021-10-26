@@ -198,6 +198,7 @@ class TestWorkSchedule(BaseTest):
         self.assertTrue(value is not None)
     
     """
+    """
     def testShiftWorkingTime(self):
         self.workSchedule = WorkSchedule("Working Time1", "Test working time")
 
@@ -376,5 +377,115 @@ class TestWorkSchedule(BaseTest):
         # case #12
         workingTime = shift.calculateTotalWorkingTime(time(shiftEnd.hour-1), shiftEnd, False)
         self.assertTrue(workingTime.total_seconds() == 3600)
-        
+    """    
+    
+    def testTeamWorkingTime(self):
+        self.workSchedule = WorkSchedule("Team Working Time", "Test team working time")
+        shiftDuration = timedelta(hours=12)
+        halfShift = timedelta(hours=6)
+        shiftStart = time(7, 0, 0)
+
+        shift = self.workSchedule.createShift("Team Shift1", "Team shift 1", shiftStart, shiftDuration)
+
+        rotation = self.workSchedule.createRotation("Team", "Rotation")
+        rotation.addSegment(shift, 1, 1)
+
+        startRotation = date(2017, 1, 1)
+        team = self.workSchedule.createTeam("Team", "Team", rotation, startRotation)
+        team.rotationStart = startRotation
+
+        # case #1
+        fromDateTime = datetime.combine(startRotation, shiftStart) + timedelta(days=rotation.getDayCount())
+        toDateTime = fromDateTime + timedelta(days=1)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #2
+        toDateTime = fromDateTime + timedelta(days=2)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #3
+        toDateTime = fromDateTime + timedelta(days=3)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
+
+        # case #4
+        toDateTime = fromDateTime + timedelta(days=4)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
+
+        # case #5
+        fromDateTime = datetime.combine(startRotation, shiftStart) + timedelta(days=rotation.getDayCount(), hours=6)
+        toDateTime = fromDateTime + timedelta(days=1)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == halfShift)
+
+        # case #6
+        toDateTime = fromDateTime + timedelta(days=2)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #7
+        toDateTime = fromDateTime + timedelta(days=3)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + halfShift)
+
+        # case #8
+        toDateTime = fromDateTime + timedelta(days=4)
+        workingTime = team.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
+
+        # now crossing midnight
+        shiftStart = time(18, 0, 0)
+        shift2 = self.workSchedule.createShift("Team Shift2", "Team shift 2", shiftStart, shiftDuration)
+
+        rotation2 = self.workSchedule.createRotation("Case 8", "Case 8")
+        rotation2.addSegment(shift2, 1, 1)
+
+        team2 = self.workSchedule.createTeam("Team2", "Team 2", rotation2, startRotation)
+        team2.rotationStart = startRotation
+
+        # case #1
+        fromDateTime = datetime.combine(startRotation, shiftStart) + timedelta(days=rotation.getDayCount())
+        toDateTime = fromDateTime + timedelta(days=1)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #2
+        toDateTime = fromDateTime + timedelta(days=2)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #3
+        toDateTime = fromDateTime + timedelta(days=3)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
+
+        # case #4
+        toDateTime = fromDateTime + timedelta(days=4)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
+
+        # case #5
+        dayDelta = datetime.combine(startRotation, shiftStart) + timedelta(days=rotation.getDayCount())
+        fromDateTime = datetime.combine(dayDelta.date(), time.max)
+        toDateTime = fromDateTime + timedelta(days=1)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == halfShift)
+
+        # case #6
+        toDateTime = fromDateTime + timedelta(days=2)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration)
+
+        # case #7
+        toDateTime = fromDateTime + timedelta(days=3)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + halfShift)
+
+        # case #8
+        toDateTime = fromDateTime + timedelta(days=4)
+        workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime == shiftDuration + shiftDuration)
     
