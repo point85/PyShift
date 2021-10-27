@@ -4,6 +4,44 @@ from PyShift.workschedule.work_schedule import WorkSchedule
 
 
 class TestWorkSchedule(BaseTest):
+    def testFirefighterShifts1(self):
+        # Kern Co, CA
+        self.workSchedule = WorkSchedule("Kern Co.", "Three 24 hour alternating shifts")
+
+        # shift, start 07:00 for 24 hours
+        shift = self.workSchedule.createShift("24 Hour", "24 hour shift", time(7, 0, 0), timedelta(hours=24))
+
+        # 2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF
+        rotation = self.workSchedule.createRotation("24 Hour", "2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF")
+        rotation.addSegment(shift, 2, 2)
+        rotation.addSegment(shift, 2, 2)
+        rotation.addSegment(shift, 2, 8)
+
+        self.workSchedule.createTeam("Red", "A Shift", rotation, date(2017, 1, 8))
+        self.workSchedule.createTeam("Black", "B Shift", rotation, date(2017, 2, 1))
+        self.workSchedule.createTeam("Green", "C Shift", rotation, date(2017, 1, 2))
+        
+        # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 1296 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 432 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 432 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 33.33, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 144 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 56.0, 2)
+
+
+        self.runBaseTest(timedelta(hours=144), timedelta(days=18), date(2017, 2, 1))
+    
     """
     def testFirefighterShifts2(self):
         # Seattle, WA fire shifts
