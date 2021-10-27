@@ -3,7 +3,7 @@ from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
 
 class TestSnapSchedule(BaseTest):
-    """ 
+     
     def testLowNight(self):             
         description = "Low night demand"
         self.workSchedule = WorkSchedule("Low Night Demand Plan", description)
@@ -51,8 +51,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 37.33, 2)
 
         self.runBaseTest(timedelta(hours=224), timedelta(days=42))
-    """
-    """
+    
+    
     def test3TeamFixed24(self):
         description = "Fire departments"
         self.workSchedule = WorkSchedule("3 Team Fixed 24 Plan", description)
@@ -90,9 +90,9 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 56, 1)
 
         self.runBaseTest(timedelta(hours=72), timedelta(days=9))
-    """
     
-    """
+    
+    
     def test549(self):
         description = "Compressed work workSchedule."
         self.workSchedule = WorkSchedule("5/4/9 Plan", description)
@@ -135,8 +135,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40, 1)
 
         self.runBaseTest(timedelta(hours=160), timedelta(days=28))
-    """
-    """  
+    
+      
     def test9to5(self):
         description = "This is the basic 9 to 5 workSchedule plan for office employees. Every employee works 8 hrs a day from Monday to Friday."
         self.workSchedule = WorkSchedule("9 To 5 Plan", description)
@@ -175,8 +175,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40, 1)
 
         self.runBaseTest(timedelta(hours=40), timedelta(days=7))
-    """
-    """   
+    
+       
     def test8Plus12(self):
         description = "This is a fast rotation plan that uses 4 teams and a combination of three 8-hr shifts on weekdays and two 12-hr shifts on weekends to provide 24/7 coverage."
         self.workSchedule = WorkSchedule("8 Plus 12 Plan", description)
@@ -230,8 +230,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42, 1)
 
         self.runBaseTest(timedelta(hours=168), timedelta(days=28))
-    """
-    """
+    
+    
     def testICUInterns(self):
         description = "This plan supports a combination of 14-hr day shift , 15.5-hr cross-cover shift , and a 14-hr night shift for medical interns. "
         description = description + "The day shift and the cross-cover shift have the same start time (7:00AM). "
@@ -279,9 +279,9 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 76.125, 1)
 
         self.runBaseTest(timedelta(minutes=2610), timedelta(days=4))
-    """
     
-    """        
+    
+            
     def testDupont(self):
         description = "The DuPont 12-hour rotating shift workSchedule uses 4 teams (crews) and 2 twelve-hour shifts to provide 24/7 coverage. "
         description = description + "It consists of a 4-week cycle where each team works 4 consecutive night shifts, "
@@ -329,8 +329,8 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=168), timedelta(days=28))
     
-    """
-    """
+    
+    
     def testDNO(self):
         description = "This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. "
         description = description + "Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off."
@@ -371,8 +371,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 56.0, 1)
 
         self.runBaseTest(timedelta(hours=24), timedelta(days=3))
-    """   
-    """
+       
+    
     def test21TeamFixed(self):
         description = "".join(["This plan is a fixed (no rotation) plan that uses 21 teams and three 8-hr shifts to provide 24/7 coverage. "
         ,"It maximizes the number of consecutive days off while still averaging 40 hours per week. "
@@ -464,8 +464,8 @@ class TestSnapSchedule(BaseTest):
             self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 40.0, 1)
 
         self.runBaseTest(timedelta(hours=280), timedelta(days=49), self.referenceDate + timedelta(days=49))
-    """
-    """
+    
+    
     def testTwoTeam(self):
         description = "".join(["This is a fixed (no rotation) plan that uses 2 teams and two 12-hr shifts to provide 24/7 coverage. "
         ,"One team will be permanently on the day shift and the other will be on the night shift."])
@@ -509,7 +509,7 @@ class TestSnapSchedule(BaseTest):
 
         self.runBaseTest(timedelta(hours=12), timedelta(days=1))
 
-    """   
+       
     def testPanama(self):
         description = "".join(["This is a slow rotation plan that uses 4 teams and two 12-hr shifts to provide 24/7 coverage. "
         , "The working and non-working days follow this pattern: 2 days on, 2 days off, 3 days on, 2 days off, 2 days on, 3 days off. "

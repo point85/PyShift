@@ -5,6 +5,145 @@ from PyShift.workschedule.work_schedule import WorkSchedule
 
 class TestWorkSchedule(BaseTest):
     """
+    def testFirefighterShifts2(self):
+        # Seattle, WA fire shifts
+        self.workSchedule = WorkSchedule("Seattle", "Four 24 hour alternating shifts")
+
+        # shift, start at 07:00 for 24 hours
+        shift = self.workSchedule.createShift("24 Hours", "24 hour shift", time(7, 0, 0), timedelta(hours=24))
+
+        # 1 day ON, 4 OFF, 1 ON, 2 OFF
+        rotation = self.workSchedule.createRotation("24 Hours", "24 Hours")
+        rotation.addSegment(shift, 1, 4)
+        rotation.addSegment(shift, 1, 2)
+
+        self.workSchedule.createTeam("A", "Platoon1", rotation, date(2014, 2, 2))
+        self.workSchedule.createTeam("B", "Platoon2", rotation, date(2014, 2, 4))
+        self.workSchedule.createTeam("C", "Platoon3", rotation, date(2014, 1, 31))
+        self.workSchedule.createTeam("D", "Platoon4", rotation, date(2014, 1, 29))
+        
+        # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 768 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 192 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 192 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 25.00, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 48 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42.0, 2)
+
+        self.runBaseTest(timedelta(hours=48), timedelta(days=8))
+
+        
+    def testPostalServiceShifts(self):
+        # United States Postal Service
+        self.workSchedule = WorkSchedule("USPS", "Six 9 hr shifts, rotating every 42 days")
+
+        # shift, start at 08:00 for 9 hours
+        day = self.workSchedule.createShift("Day", "day shift", time(8, 0, 0), timedelta(hours=9))
+
+        rotation = self.workSchedule.createRotation("Day", "Day")
+        rotation.addSegment(day, 3, 7)
+        rotation.addSegment(day, 1, 7)
+        rotation.addSegment(day, 1, 7)
+        rotation.addSegment(day, 1, 7)
+        rotation.addSegment(day, 1, 7)
+
+        # day teams
+        self.workSchedule.createTeam("Team A", "A team", rotation, self.referenceDate)
+        self.workSchedule.createTeam("Team B", "B team", rotation, self.referenceDate - timedelta(days=7))
+        self.workSchedule.createTeam("Team C", "C team", rotation, self.referenceDate - timedelta(days=14))
+        self.workSchedule.createTeam("Team D", "D team", rotation, self.referenceDate - timedelta(days=21))
+        self.workSchedule.createTeam("Team E", "E team", rotation, self.referenceDate - timedelta(days=28))
+        self.workSchedule.createTeam("Team F", "F team", rotation, self.referenceDate - timedelta(days=35))
+        
+        # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 252 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 6048 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 378 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 1008 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 6.25, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 63 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 10.50, 2)
+
+        self.runBaseTest(timedelta(hours=63), timedelta(days=42))
+    
+
+    def testNursingICUShifts(self):
+        # ER nursing schedule
+        self.workSchedule = WorkSchedule("Nursing ICU", "Two 12 hr back-to-back shifts, rotating every 14 days")
+
+        # day shift, starts at 06:00 for 12 hours
+        day = self.workSchedule.createShift("Day", "Day shift", time(6, 0, 0), timedelta(hours=12))
+
+        # night shift, starts at 18:00 for 12 hours
+        night = self.workSchedule.createShift("Night", "Night shift", time(18, 0, 0), timedelta(hours=12))
+
+        # day rotation
+        dayRotation = self.workSchedule.createRotation("Day", "Day")
+        dayRotation.addSegment(day, 3, 4)
+        dayRotation.addSegment(day, 4, 3)
+
+        # inverse day rotation (day + 3 days)
+        inverseDayRotation = self.workSchedule.createRotation("Inverse Day", "Inverse Day")
+        inverseDayRotation.addSegment(day, 0, 3)
+        inverseDayRotation.addSegment(day, 4, 4)
+        inverseDayRotation.addSegment(day, 3, 0)
+
+        # night rotation
+        nightRotation = self.workSchedule.createRotation("Night", "Night")
+        nightRotation.addSegment(night, 4, 3)
+        nightRotation.addSegment(night, 3, 4)
+
+        # inverse night rotation
+        inverseNightRotation = self.workSchedule.createRotation("Inverse Night", "Inverse Night")
+        inverseNightRotation.addSegment(night, 0, 4)
+        inverseNightRotation.addSegment(night, 3, 3)
+        inverseNightRotation.addSegment(night, 4, 0)
+
+        self.workSchedule.createTeam("A", "Day shift", dayRotation, self.referenceDate)
+        self.workSchedule.createTeam("B", "Day inverse shift", inverseDayRotation, self.referenceDate)
+        self.workSchedule.createTeam("C", "Night shift", nightRotation, self.referenceDate)
+        self.workSchedule.createTeam("D", "Night inverse shift", inverseNightRotation, self.referenceDate)
+        
+        # specific checks
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate + timedelta(days=28), self.laterTime)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        self.assertTrue(workingTime.total_seconds() == 896 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0)
+        
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 6048 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 1344 * 3600)
+        
+        for team in self.workSchedule.teams:
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 1008 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 22.22, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 224 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 37.33, 2)
+
+        self.runBaseTest(timedelta(hours=84), timedelta(days=14))
+
+  
     def testExceptions(self):
         self.workSchedule = WorkSchedule("Exceptions", "Test exceptions")
         shiftDuration = timedelta(hours=24)
@@ -489,7 +628,7 @@ class TestWorkSchedule(BaseTest):
         workingTime = team2.calculateWorkingTime(fromDateTime, toDateTime)
         self.assertTrue(workingTime == shiftDuration + shiftDuration)
     """
-    
+    """
     def testNonWorkingTime(self): 
         self.workSchedule =  WorkSchedule("Non Working Time", "Test non working time")
         localDate = date(2017, 1, 1)
@@ -588,4 +727,4 @@ class TestWorkSchedule(BaseTest):
 
         duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
         self.assertTrue(duration == timedelta(hours=8))
-    
+    """
