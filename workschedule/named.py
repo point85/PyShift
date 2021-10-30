@@ -41,3 +41,6 @@ class Named():
             raise PyShiftException(msg)
         
         self.name = name
+        
+    def compareName(self, other) -> int:
+        return ((self.name > other.name) - (self.name < other.name))

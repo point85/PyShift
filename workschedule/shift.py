@@ -203,12 +203,6 @@ class Shift(TimePeriod):
         return True
 
     ##
-    # Compare one shift to another one
-    #
-    def compareTo(self, other) -> bool:
-        return self.name == other.name
-
-    ##
     # Build a string representation of this shift
     # 
     # @return String

@@ -393,7 +393,7 @@ class WorkSchedule(Named):
 
             count = 1
             for period in periods:
-                totalMinutes = totalMinutes + period.minutes()
+                totalMinutes = totalMinutes + period.duration
                 text = text + "\n   (" + str(count) + ") " + str(period)
                 count = count + 1
             
@@ -401,12 +401,6 @@ class WorkSchedule(Named):
 
 
         return text
-    
-        ##
-    # Compare one work schedule to another one
-    #
-    def compareTo(self, other) -> bool:
-        return self.name == other.name
 
         
     

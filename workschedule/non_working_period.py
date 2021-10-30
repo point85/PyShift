@@ -53,7 +53,7 @@ class NonWorkingPeriod(Named):
         start = Localizer.instance().messageStr("period.start")
         end = Localizer.instance().messageStr("period.end")
 
-        return super().str() + ", " + start + ": " + self.startDateTime + " (" + self.duration + ")" + ", " + end + ": " + self.getEndDateTime()
+        return super().__str__() + ", " + start + ": " + str(self.startDateTime) + " (" + str(self.duration) + ")" + ", " + end + ": " + str(self.getEndDateTime())
     
     ##
     # Compare two non-working periods
@@ -80,7 +80,7 @@ class NonWorkingPeriod(Named):
     def isInPeriod(self, day: date) -> bool:
         isInPeriod = False
 
-        if (day.compareTo(self.startDateTime) >= 0 and day.compareTo(self.getEndDateTime()) <= 0):
+        if (day >= self.startDateTime.date() and day <= self.getEndDateTime().date()):
             isInPeriod = True
 
         return isInPeriod

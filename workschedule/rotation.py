@@ -131,10 +131,6 @@ class Rotation(Named):
         self.rotationSegments.append(segment)
         segment.sequence = len(self.rotationSegments)
         return segment
-    
-    def compareTo(self, other):
-        return self.name == other.name
-    
 
     ##
     # Build a string representation of this rotation

@@ -207,12 +207,6 @@ class Team(Named):
         return timeSum
     
     ##
-    # Compare one team to another one
-    #
-    def compareTo(self, other) -> bool:
-        return self.name == other.name
-    
-    ##
     # Build a string value for this team
     #
     def __str__(self) -> str:

@@ -1,9 +1,176 @@
 from datetime import datetime, date, time, timedelta
 from PyShift.test.base_test import BaseTest
 from PyShift.workschedule.work_schedule import WorkSchedule
-
+from PyShift.workschedule.shift import Shift
+from PyShift.workschedule.rotation import Rotation, RotationSegment
+from PyShift.workschedule.team import Team
 
 class TestWorkSchedule(BaseTest):
+    def testGenericShift(self):
+        # regular work week with holidays and breaks
+        self.workSchedule = WorkSchedule("Regular 40 hour work week", "9 to 5")
+
+        # holidays
+        memorialDay = self.workSchedule.createNonWorkingPeriod("MEMORIAL DAY", "Memorial day",
+            datetime.combine(date(2016, 5, 30), time(0, 0, 0)), timedelta(hours=24))
+        self.workSchedule.createNonWorkingPeriod("INDEPENDENCE DAY", "Independence day", 
+            datetime.combine(date(2016, 7, 4), time(0, 0, 0)), timedelta(hours=24))
+        self.workSchedule.createNonWorkingPeriod("LABOR DAY", "Labor day", 
+            datetime.combine(date(2016, 9, 5), time(0, 0, 0)), timedelta(hours=24))
+        self.workSchedule.createNonWorkingPeriod("THANKSGIVING", "Thanksgiving day and day after",
+            datetime.combine(date(2016, 11, 24), time(0, 0, 0)), timedelta(hours=48))
+        self.workSchedule.createNonWorkingPeriod("CHRISTMAS SHUTDOWN", "Christmas week scheduled maintenance",
+            datetime.combine(date(2016, 12, 25), time(0, 30, 0)), timedelta(hours=168))
+
+        # each shift duration
+        shiftDuration = timedelta(hours=8)
+        shift1Start = time(7, 0, 0)
+        shift2Start = time(15, 0, 0)
+
+        # shift 1
+        shift1 = self.workSchedule.createShift("Shift1", "Shift #1", shift1Start, shiftDuration)
+
+        # breaks
+        shift1.createBreak("10AM", "10 am break", time(10, 0, 0), timedelta(minutes=15))
+        shift1.createBreak("LUNCH", "lunch", time(12, 0, 0), timedelta(hours=1))
+        shift1.createBreak("2PM", "2 pm break", time(14, 0, 0), timedelta(minutes=15))
+
+        # shift 2
+        shift2 = self.workSchedule.createShift("Shift2", "Shift #2", shift2Start, shiftDuration)
+
+        # shift 1, 5 days ON, 2 OFF
+        rotation1 = self.workSchedule.createRotation("Shift1", "Shift1")
+        rotation1.addSegment(shift1, 5, 2)
+
+        # shift 2, 5 days ON, 2 OFF
+        rotation2 = self.workSchedule.createRotation("Shift2", "Shift2")
+        rotation2.addSegment(shift2, 5, 2)
+
+        startRotation = date(2016, 1, 1)
+        team1 = self.workSchedule.createTeam("Team1", "Team #1", rotation1, startRotation)
+        team2 = self.workSchedule.createTeam("Team2", "Team #2", rotation2, startRotation)
+
+        # same day
+        fromDateTime = datetime.combine(startRotation, shift1Start) + timedelta(days=7)
+        toDateTime = None
+
+        totalWorking = None
+
+        # 21 days, team1
+        d = timedelta()
+
+        for i in range(0, 21):
+            toDateTime = fromDateTime + timedelta(days=i)
+            totalWorking = team1.calculateWorkingTime(fromDateTime, toDateTime)
+            rotationDay = team1.getDayInRotation(toDateTime.date())
+
+            self.assertTrue(totalWorking == d)
+
+            if (isinstance(rotation1.periods[rotationDay - 1], Shift)):
+                d = d + shiftDuration
+
+        totalSchedule = totalWorking
+
+        # 21 days, team2
+        fromDateTime = datetime.combine(startRotation, shift2Start) + timedelta(days=7)
+        d = timedelta()
+
+        for i in range(0, 21):
+            toDateTime = fromDateTime + timedelta(days=i)
+            totalWorking = team2.calculateWorkingTime(fromDateTime, toDateTime)
+            rotationDay = team2.getDayInRotation(toDateTime.date())
+
+            self.assertTrue(totalWorking == d)
+
+            if (isinstance(rotation1.periods[rotationDay - 1], Shift)):
+                d = d + shiftDuration
+
+        totalSchedule = totalSchedule + totalWorking
+
+        scheduleDuration = self.workSchedule.calculateWorkingTime(fromDateTime, fromDateTime + timedelta(days=21))
+        nonWorkingDuration = self.workSchedule.calculateNonWorkingTime(fromDateTime, fromDateTime + timedelta(days=21))
+        self.assertTrue(scheduleDuration + nonWorkingDuration == totalSchedule)
+
+        # breaks
+        allBreaks = timedelta(minutes=90)
+        self.assertTrue(shift1.calculateBreakTime() == allBreaks)
+
+        # misc
+        shift3 = Shift("name", "description", time(), timedelta(hours=8))
+        shift3.name = "Shift3"       
+        self.assertTrue(shift3.compareName(shift3) == 0)
+
+        segment = RotationSegment(shift3, 5, 5, None)
+        segment.sequence = 1
+        segment.startingShift = shift2
+        segment.daysOn = 5
+        segment.daysOff = 2
+        self.assertTrue(segment.rotation is None)
+
+        rotation3 = Rotation("name", "description")
+        rotation3.name = "Rotation3"
+        self.assertTrue(rotation3.compareName(rotation3) == 0)
+        self.assertTrue(len(rotation3.rotationSegments) == 0)
+
+        self.assertFalse(team1.isDayOff(startRotation))
+
+        team3 = Team("name", "description", rotation3, time())
+        self.assertTrue(team1.compareName(team1) == 0)
+        team3.rotation = rotation1
+        
+        self.assertFalse(team1.compareName(team3) == 0)
+
+        self.assertFalse(memorialDay.isInPeriod(date(2016, 1, 1)))
+
+        self.runBaseTest(timedelta(hours=40), timedelta(days=7), date(2016, 1, 1))
+
+    """
+    def testManufacturingShifts(self):
+        # manufacturing company
+        self.workSchedule = WorkSchedule("Manufacturing Company - four twelves",
+                "Four 12 hour alternating day/night shifts")
+
+        # day shift, start at 07:00 for 12 hours
+        day = self.workSchedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=12))
+
+        # night shift, start at 19:00 for 12 hours
+        night = self.workSchedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
+
+        # 7 days ON, 7 OFF
+        dayRotation = self.workSchedule.createRotation("Day", "Day")
+        dayRotation.addSegment(day, 7, 7)
+
+        # 7 nights ON, 7 OFF
+        nightRotation = self.workSchedule.createRotation("Night", "Night")
+        nightRotation.addSegment(night, 7, 7)
+
+        self.workSchedule.createTeam("A", "A day shift", dayRotation, date(2014, 1, 2))
+        self.workSchedule.createTeam("B", "B night shift", nightRotation, date(2014, 1, 2))
+        self.workSchedule.createTeam("C", "C day shift", dayRotation, date(2014, 1, 9))
+        self.workSchedule.createTeam("D", "D night shift", nightRotation, date(2014, 1, 9))
+        
+        # specific checks        
+        fromDateTime = datetime.combine(self.laterDate, self.laterTime)
+        toDateTime = datetime.combine(self.laterDate, self.laterTime) + timedelta(days=28)
+        
+        workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
+        nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
+        
+        self.assertTrue(workingTime.total_seconds() == 672 * 3600)
+        self.assertTrue(nonWorkingTime.total_seconds() == 0 * 3600)
+        
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 1344 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 336 * 3600)
+        
+        for team in self.workSchedule.teams:            
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 336 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 25.00, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 84 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42.0, 2)
+
+        self.runBaseTest(timedelta(hours=84), timedelta(days=14), date(2014, 1, 9))
+    """
+    """
     def testFirefighterShifts1(self):
         # Kern Co, CA
         self.workSchedule = WorkSchedule("Kern Co.", "Three 24 hour alternating shifts")
@@ -41,7 +208,7 @@ class TestWorkSchedule(BaseTest):
 
 
         self.runBaseTest(timedelta(hours=144), timedelta(days=18), date(2017, 2, 1))
-    
+    """
     """
     def testFirefighterShifts2(self):
         # Seattle, WA fire shifts
