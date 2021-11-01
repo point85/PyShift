@@ -1,3 +1,3 @@
-# base class for more specific exceptions
+## Base class for more specific exceptions
 class PyShiftException(Exception):
     pass

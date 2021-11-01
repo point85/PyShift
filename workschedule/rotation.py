@@ -14,6 +14,13 @@ from PyShift.workschedule.shift_utils import ShiftUtils
 # days off.
 # 
 class RotationSegment():
+    ##
+    # Construct a segment of a rotation
+    # @param startingShift {@link Shift} that starts the segment
+    # @param daysOn Number of days working the shift
+    # @param daysOff Number of days not working
+    # @param rotation {@link Rotation}
+    #
     def __init__(self, startingShift: Shift, daysOn: int, daysOff: int, rotation):
         self.startingShift = startingShift
         self.daysOn = daysOn
@@ -39,16 +46,26 @@ class RotationSegment():
 # periods.
 # 
 class Rotation(Named):
+    # day off period
     dayOff = None  
-      
+    
+    ##
+    # Construct a shift rotation
+    # @param name Name of rotation
+    # @param description Description of rotation  
     def __init__(self, name: str, description: str):
         super().__init__(name, description)
+        
         # RotationSegments in the rotation
         self.rotationSegments = []
         
         # list of working and non-working TimePeriods (days)
         self.periods = None
     
+    ##
+    # Create or return the day off period
+    #
+    # @return the day off period
     @staticmethod    
     def getDayOff() -> DayOff:
         if (Rotation.dayOff is None):
@@ -91,7 +108,7 @@ class Rotation(Named):
     ##
     # Get the duration of this rotation
     # 
-    # @return timedelta
+    # @return timedelta duration
     #
     def getDuration(self) -> timedelta:
         return timedelta(days=len(self.getPeriods()))
@@ -132,9 +149,6 @@ class Rotation(Named):
         segment.sequence = len(self.rotationSegments)
         return segment
 
-    ##
-    # Build a string representation of this rotation
-    #
     def __str__(self) -> str:
         named = super().__str__()
         rd = Localizer.instance().messageStr("rotation.duration") + ": " + ShiftUtils.formatTimedelta(self.getDuration())

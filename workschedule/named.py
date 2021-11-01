@@ -4,7 +4,11 @@ from PyShift.workschedule.shift_exception import PyShiftException
 ##
 # Class Named represents a named object such as a Shift or Team.
 # 
-class Named():    
+class Named():  
+    ##
+    # Construct a named object
+    # @param name Name of object
+    # @param description Description of object  
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
@@ -41,6 +45,10 @@ class Named():
             raise PyShiftException(msg)
         
         self.name = name
-        
+    
+    ##
+    # Compare two Named objects by name
+    # @param other Other named object
+    # @return -1 less than, 0 if equal, and 1 if greater than by string sort
     def compareName(self, other) -> int:
         return ((self.name > other.name) - (self.name < other.name))

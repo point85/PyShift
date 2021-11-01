@@ -12,6 +12,13 @@ from PyShift.workschedule.shift_exception import PyShiftException
 # schedule.
 # 
 class Team(Named):
+    ##
+    # Construct a team
+    # @param name Name of team
+    # @param description Description of team
+    # @param rotation {@link Rotation} of this team
+    # @param rotationStart Date that the rotation starts for this team
+    # 
     def __init__(self, name: str, description: str, rotation: Rotation, rotationStart: date):
         super().__init__(name, description)
                 
@@ -24,7 +31,7 @@ class Team(Named):
     ##
     # Get the duration of the shift rotation
     # 
-    # @return Duration
+    # @return Duration as timedelta
     #
     def getRotationDuration(self) -> timedelta:
         return self.rotation.getDuration()
@@ -33,7 +40,7 @@ class Team(Named):
     # Get the shift rotation's working time as a percentage of the rotation
     # duration
     # 
-    # @return Percentage
+    # @return Percentage worked
     #
     def getPercentageWorked(self) -> float:
         working = self.rotation.getWorkingTime()
@@ -47,7 +54,7 @@ class Team(Named):
     ##
     # Get the average number of hours worked each week by this team
     # 
-    # @return Duration of hours worked per week
+    # @return average hours worked per week
     #
     def getAverageHoursWorkedPerWeek(self) -> float:
         deltaDays = self.rotation.getDuration().total_seconds() / 86400
@@ -57,10 +64,10 @@ class Team(Named):
         return hoursPerWeek
 
     ##
-    # Get the day number in the rotation for this local date
+    # Get the day number in the rotation for this date
     # 
-    # @param date
-    #            LocalDate
+    # @param day
+    #            date
     # @return day number in the rotation, starting at 1
     #
     def getDayInRotation(self, day: date) -> int:
@@ -85,7 +92,7 @@ class Team(Named):
     # Get the {@link ShiftInstance} for the specified day
     # 
     # @param day
-    #            Day with a shift instance
+    #            date with a shift instance
     # @return {@link ShiftInstance}
     #
     def getShiftInstanceForDay(self, day: date) -> ShiftInstance:
@@ -112,7 +119,7 @@ class Team(Named):
     # Check to see if this day is a day off
     # 
     # @param day
-    #            Date to check
+    #            date to check
     # @return True if a day off
     #
     def isDayOff(self, day: date) -> bool:
@@ -129,13 +136,13 @@ class Team(Named):
         return dayOff
 
     ##
-    # Calculate the schedule working time between the specified dates and times
+    # Calculate the team working time between the specified dates and times of day
     # 
-    # @param from
+    # @param fromTime
     #            Starting date and time of day
-    # @param to
+    # @param toTime
     #            Ending date and time of day
-    # @return Duration of working time
+    # @return Duration of working time as timedelta
     #
     def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         if (fromTime > toTime):
@@ -206,9 +213,6 @@ class Team(Named):
 
         return timeSum
     
-    ##
-    # Build a string value for this team
-    #
     def __str__(self) -> str:
         rpct = Localizer.instance().messageStr("rotation.percentage")
         rs = Localizer.instance().messageStr("rotation.start") + ": " + str(self.rotationStart) 
@@ -221,7 +225,7 @@ class Team(Named):
         text = ""
         try:
             text = super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs
-        except Exception as e:
+        except:
             pass
     
         return text

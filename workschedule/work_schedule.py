@@ -13,7 +13,7 @@ from PyShift.workschedule.shift_utils import ShiftUtils
 ##
 # Class WorkSchedule represents a named group of teams who collectively work
 # one or more shifts with off-shift periods. A work schedule can have periods
-# of non-working time.
+# of non-working time as well as breaks.
 # 
 class WorkSchedule(Named):
     ##
@@ -23,8 +23,7 @@ class WorkSchedule(Named):
     #            Schedule name
     # @param description
     #            Schedule description
-    # @throws Exception
-    #             exception
+    #
     def __init__(self, name: str, description: str):
         super().__init__(name, description)
         self.teams = []
@@ -49,17 +48,21 @@ class WorkSchedule(Named):
     def deleteNonWorkingPeriod(self, period: NonWorkingPeriod):
         if (period in self.nonWorkingPeriods):
             self.nonWorkingPeriods.remove(period)
-            
+    
+    ##
+    # Get the key for sorting non-working periods    
+    # @param period {@link NonWorkingPeriod}
+    # @return time key 
     @staticmethod
     def getPeriodKey(period: NonWorkingPeriod) -> time:
         return period.startDateTime
+    
     ##
-    # Get the list of shift instances for the specified date that start in that
-    # date
+    # Get the list of shift instances for the specified date that start during that date
     # 
     # @param day
-    #            LocalDate
-    # @return List of {@link ShiftInstance}
+    #            date
+    # @return list of {@link ShiftInstance}
     def getShiftInstancesForDay(self, day: date) -> [ShiftInstance]:
         workingShifts = []
 
@@ -111,13 +114,14 @@ class WorkSchedule(Named):
     # @param name
     #            Name of team
     # @param description
-    #            description
+    #            description of team
     # @param rotation
     #            rotation
     # @param rotationStart 
     #            Start of rotation
     # @return {@link Team}
-    def createTeam(self, name: str, description: str, rotation: Rotation, rotationStart:time) -> Team:
+    #
+    def createTeam(self, name: str, description: str, rotation: Rotation, rotationStart: time) -> Team:
         team = Team(name, description, rotation, rotationStart)
 
         if (team in self.teams):
@@ -125,7 +129,7 @@ class WorkSchedule(Named):
             raise PyShiftException(msg)
     
         self.teams.append(team)
-        team.workSchedule = self
+    #    team.workSchedule = self
         return team
     
     ##
@@ -138,8 +142,9 @@ class WorkSchedule(Named):
     # @param start
     #            start time of day
     # @param duration
-    #            duration
+    #            duration of shift
     # @return {@link Shift}
+    #
     def createShift(self, name:str, description:str, start: time, duration: timedelta) -> Shift:
         shift = Shift(name, description, start, duration)
 
@@ -148,7 +153,7 @@ class WorkSchedule(Named):
             raise PyShiftException(msg)
     
         self.shifts.append(shift)
-        shift.workSchedule = self
+    #    shift.workSchedule = self
         return shift
 
     ##
@@ -184,6 +189,7 @@ class WorkSchedule(Named):
     # @param duration
     #            Duration of period
     # @return {@link NonWorkingPeriod}
+    #
     def createNonWorkingPeriod(self, name: str, description: str, startDateTime: datetime, duration: timedelta) -> NonWorkingPeriod:
         period = NonWorkingPeriod(name, description, startDateTime, duration)
 
@@ -191,7 +197,7 @@ class WorkSchedule(Named):
             msg = Localizer.instance().messageStr("nonworking.period.already.exists").format(name)
             raise PyShiftException(msg)
     
-        period.workSchedule = self
+    #    period.workSchedule = self
         self.nonWorkingPeriods.append(period)        
         self.nonWorkingPeriods.sort(key=WorkSchedule.getPeriodKey)
 
@@ -202,6 +208,7 @@ class WorkSchedule(Named):
     # 
     # @param name        Name of rotation
     # @param description Description of rotation
+    #
     # @return {@link Rotation}
     #
     def createRotation(self, name: str, description: str) -> Rotation:
@@ -212,13 +219,14 @@ class WorkSchedule(Named):
             raise PyShiftException(msg)
 
         self.rotations.append(rotation)
-        rotation.workSchedule = self
+    #    rotation.workSchedule = self
         return rotation
 
     ##
-    # Get total duration of rotation across all teams.
+    # Get total duration of rotations across all teams.
     # 
-    # @return Duration of rotation
+    # @return Duration of team rotations
+    #
     def getRotationDuration(self) -> timedelta:
         timeSum = timedelta()
 
@@ -230,7 +238,8 @@ class WorkSchedule(Named):
     ##
     # Get the total working time for all team rotations
     # 
-    # @return rotation working time
+    # @return sum of rotation working times
+    #
     def getRotationWorkingTime(self) -> timedelta:
         timeSum = timedelta()
 
@@ -243,14 +252,12 @@ class WorkSchedule(Named):
     # Calculate the scheduled working time between the specified dates and
     # times of day. Non-working periods are removed.
     # 
-    # @param from
-    #            Starting date and time
-    # @param to
-    #            Ending date and time
+    # @param fromTime
+    #            Starting date and time of day
+    # @param toTime
+    #            Ending date and time of day
     # @return Working time duration
-    # @throws Exception
-    #             exception
-
+    #
     def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         timeSum = timedelta()
 
@@ -272,11 +279,12 @@ class WorkSchedule(Named):
     # Calculate the non-working time between the specified dates and times of
     # day.
     # 
-    # @param from
-    #            Starting date and time
-    # @param to
-    #            Ending date and time
+    # @param fromTime
+    #            Starting date and time of day
+    # @param toTime
+    #            Ending date and time of day
     # @return Non-working time duration
+    #
     def calculateNonWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
         timeSum = timedelta()
 
@@ -320,9 +328,7 @@ class WorkSchedule(Named):
     #            Starting date
     # @param end
     #            Ending date
-    # @throws Exception
-    #             exception
-
+    #
     def printShiftInstances(self, start: date, end: date):
         if (start > end):
             msg = Localizer.instance().messageStr("end.earlier.than.start").format(start, end)
@@ -347,10 +353,6 @@ class WorkSchedule(Named):
         
             day = day + timedelta(days=1)
 
-    ##
-    # Build a string value for the work schedule
-    # 
-    # @return String
     def __str__(self) -> str:
         sch = Localizer.instance().messageStr("schedule")
         rd = Localizer.instance().messageStr("rotation.duration") + ": " + ShiftUtils.formatTimedelta(self.getRotationDuration())
@@ -401,8 +403,3 @@ class WorkSchedule(Named):
 
 
         return text
-
-        
-    
-
-    

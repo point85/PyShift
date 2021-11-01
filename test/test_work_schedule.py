@@ -421,17 +421,17 @@ class TestWorkSchedule(BaseTest):
         
         workingTime = self.workSchedule.calculateWorkingTime(fromDateTime, toDateTime)
         nonWorkingTime = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
-        self.assertTrue(workingTime.total_seconds() == 896 * 3600)
+        self.assertTrue(workingTime.total_seconds() == 696 * 3600)
         self.assertTrue(nonWorkingTime.total_seconds() == 0)
         
-        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 6048 * 3600)
-        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 1344 * 3600)
+        self.assertTrue(self.workSchedule.getRotationDuration().total_seconds() == 1344 * 3600)
+        self.assertTrue(self.workSchedule.getRotationWorkingTime().total_seconds() == 336 * 3600)
         
         for team in self.workSchedule.teams:
-            self.assertTrue(team.rotation.getDuration().total_seconds() == 1008 * 3600)
-            self.assertAlmostEqual(team.getPercentageWorked(), 22.22, 2)
-            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 224 * 3600)
-            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 37.33, 2)
+            self.assertTrue(team.rotation.getDuration().total_seconds() == 336 * 3600)
+            self.assertAlmostEqual(team.getPercentageWorked(), 25.00, 2)
+            self.assertTrue(team.rotation.getWorkingTime().total_seconds() == 84 * 3600)
+            self.assertAlmostEqual(team.getAverageHoursWorkedPerWeek(), 42.0, 2)
 
         self.runBaseTest(timedelta(hours=84), timedelta(days=14))
 
@@ -450,7 +450,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
     
         try:
             period.setStartDateTime(None)
@@ -458,7 +457,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             # same period
@@ -468,7 +466,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             # crosses midnight
@@ -477,7 +474,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             shift.setDuration(None)
@@ -485,7 +481,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             shift.setDuration(timedelta(seconds=0))
@@ -493,7 +488,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             shift.setDuration(timedelta(seconds=48*3600))
@@ -501,7 +495,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             # same shift
@@ -509,8 +502,7 @@ class TestWorkSchedule(BaseTest):
             self.fail()
         except Exception as e:
             # expected
-            print(str(e))
-            pass        
+            print(str(e))       
 
         rotation = self.workSchedule.createRotation("Rotation", "Rotation")
         rotation.addSegment(shift, 5, 2)
@@ -533,7 +525,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass 
 
         try:
             # same team
@@ -542,7 +533,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass 
 
         try:
             # date before start
@@ -551,7 +541,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass 
 
         try:
             # end before start
@@ -560,7 +549,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass 
 
         try:
             # delete in-use shift
@@ -569,7 +557,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass 
 
         # breaks
         lunch = shift.createBreak("Lunch", "Lunch", time(12, 0, 0), timedelta(minutes=60))
@@ -600,7 +587,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             self.workSchedule.createShift("1", "1", shiftStart, None)
@@ -608,7 +594,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         try:
             self.workSchedule.createShift(None, "1", shiftStart, timedelta(minutes=60))
@@ -616,7 +601,6 @@ class TestWorkSchedule(BaseTest):
         except Exception as e:
             # expected
             print(str(e))
-            pass
 
         self.assertFalse(shift == rotation)
 

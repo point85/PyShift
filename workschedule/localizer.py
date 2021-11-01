@@ -3,6 +3,7 @@ import gettext
 
 ##
 # The Localizer class provides localization services for work schedule user-visible text as well as for error messages.
+# It is a Singleton class
 #
 class Localizer:  
     # root folder 
@@ -11,19 +12,24 @@ class Localizer:
     # single instance
     singleton = None
     
+    ##
+    # Construct the Localizer
     def __init__(self):
         Localizer.singleton = self
         self.messages = None
-                    
+    
+    ##
+    # Get the single instance of Localizer                
     @staticmethod
     def instance():
         if (Localizer.singleton is None):
             Localizer()
         return Localizer.singleton 
     
+    ##
+    # get the the language country code from the default locale
     @staticmethod
     def getLC() -> str:
-        # get the the language country code from the default locale
         thisLocale = locale.getdefaultlocale()
         langCC = thisLocale[0]
         return langCC

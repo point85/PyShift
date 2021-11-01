@@ -20,5 +20,7 @@ class Break(TimePeriod):
     def __init__(self, name: str, description: str, start: time, duration: timedelta):
         super().__init__(name, description, start, duration)
 
+    ##
+    # a break is a working period
     def isWorkingPeriod(self):
         return True

@@ -10,6 +10,13 @@ from PyShift.workschedule.shift_exception import PyShiftException
 # maintenance.
 #
 class NonWorkingPeriod(Named):
+    ##
+    # Construct a non-working period
+    # @param name Name of period
+    # @param description Description of period
+    # @param startDateTime Starting date and time of day of period
+    # @param duration Duration of period
+    #
     def __init__(self, name: str, description: str, startDateTime: datetime, duration: timedelta):
         super().__init__(name, description)
         self.setStartDateTime(startDateTime)
@@ -76,7 +83,7 @@ class NonWorkingPeriod(Named):
     # @return True if in the non-working period
     # @throws Exception
     #             Exception
-    #/
+    #
     def isInPeriod(self, day: date) -> bool:
         isInPeriod = False
 

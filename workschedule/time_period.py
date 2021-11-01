@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, date, time, timedelta
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift_exception import PyShiftException 
@@ -9,8 +9,16 @@ from PyShift.workschedule.shift_utils import ShiftUtils
 # starting time of day.
 # 
 class TimePeriod(Named):
+    # number of seconds in a day
     SECONDS_PER_DAY = 24 * 60 * 60
-    
+
+    ##
+    # Construct a time period
+    # @param name Name of period
+    # @param description Description of period
+    # @param startTime Starting date and time of day
+    # @param duration Duration of time period
+    #    
     def __init__(self, name : str, description : str, startTime : datetime, duration : timedelta):
         super().__init__(name, description)
         self.setStartTime(startTime)
@@ -20,7 +28,7 @@ class TimePeriod(Named):
     # Set duration
     # 
     # @param duration
-    #            period duration
+    #            period duration as timedelta
     # 
     def setDuration(self, duration: timedelta):
         if (duration is None or duration.total_seconds() == 0):
@@ -33,16 +41,22 @@ class TimePeriod(Named):
         
         self.duration = duration
     
-    def timePlus(self, time: time, duration: timedelta) -> time:
+    ##
+    # add duration to a time of day
+    # @param dayTime: time of day
+    # @param duration: duration to add
+    # @return new time
+    #
+    def timePlus(self, dayTime: time, duration: timedelta) -> time:
         # unused date portion
-        start = datetime(2021, 1, 1, hour=time.hour, minute=time.minute, second=time.second)
+        start = datetime.combine(date.today(), time(hour=dayTime.hour, minute=dayTime.minute, second=dayTime.second))
         end = start + duration
         return end.time()
 
     ##
     # Get period end
     # 
-    # @return End time
+    # @return End time of day
     #
     def getEndTime(self) -> time:
         return self.timePlus(self.startTime, self.duration)
@@ -51,7 +65,7 @@ class TimePeriod(Named):
     # Set period start time
     # 
     # @param startTime
-    #            Start time
+    #            Starting time of day
     #
     def setStartTime(self, startTime: time):
         if (startTime is None):
