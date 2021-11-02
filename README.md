@@ -52,224 +52,195 @@ The DNO schedule discussed above is defined as follows.
         rotation = self.workSchedule.createRotation("DNO", "DNO")
         rotation.addSegment(day, 1, 0)
         rotation.addSegment(night, 1, 1)
+        referenceDate = date(2021, 11, 1)
 
-        self.workSchedule.createTeam("Team 1", "First team", rotation, self.referenceDate)
-        self.workSchedule.createTeam("Team 2", "Second team", rotation, self.referenceDate - timedelta(days=1))
-        self.workSchedule.createTeam("Team 3", "Third team", rotation, self.referenceDate - timedelta(days=2))
+        self.workSchedule.createTeam("Team 1", "First team", rotation, referenceDate)
+        self.workSchedule.createTeam("Team 2", "Second team", rotation, referenceDate - timedelta(days=1))
+        self.workSchedule.createTeam("Team 3", "Third team", rotation, referenceDate - timedelta(days=2))
 ```
 To obtain the working time over three days starting at 07:00, the following methods are called:
 
-```java
-LocalDateTime from = LocalDateTime.of(referenceDate, LocalTime.of(7, 0, 0));
-Duration duration = schedule.calculateWorkingTime(from, from.plusDays(3));
+```python
+        fromDateTime = datetime.combine(date(2021, 11, 2), time(7, 0, 0))
+        duration = self.workSchedule.calculateWorkingTime(fromDateTime, fromDateTime + timedelta(days=3))
 ```
 
 To obtain the shift instances for a date, the following method is called:
 
-```java
-List<ShiftInstance> instances = schedule.getShiftInstancesForDay(LocalDate.of(2017, 3, 1)); 
+```python
+shiftInstances = self.workSchedule.getShiftInstancesForDay(date(2021, 11, 2)) 
 ```
 
-To print a work schedule, call the toString() method.  For example:
+To print a work schedule, call the __str()__ method.  For example:
 
-```java
+```python
+        print(str(self.workSchedule))
+```
+with output:
+
+```python		
 Schedule: DNO Plan (This is a fast rotation plan that uses 3 teams and two 12-hr shifts to provide 24/7 coverage. Each team rotates through the following sequence every three days: 1 day shift, 1 night shift, and 1 day off.)
-Rotation duration: PT216H, Scheduled working time: PT72H
+Rotation duration: 9D:0H:0M, Scheduled working time: 3D:0H:0M
 Shifts: 
-   (1) Day (Day shift), Start : 07:00 (PT12H), End : 19:00
-   (2) Night (Night shift), Start : 19:00 (PT12H), End : 07:00
+   (1) Day (Day shift), Start: 07:00:00 (0D:12H:0M), End: 19:00:00
+   (2) Night (Night shift), Start: 19:00:00 (0D:12H:0M), End: 07:00:00
 Teams: 
-   (1) Team 1 (First team), Rotation start: 2016-10-31, Rotation periods: [Day (on), Night (on), (off) ], Rotation duration: PT72H, Days in rotation: 3, Scheduled working time: PT24H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-   (2) Team 2 (Second team), Rotation start: 2016-10-30, Rotation periods: [Day (on), Night (on),(off) ], Rotation duration: PT72H, Days in rotation: 3, Scheduled working time: PT24H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-   (3) Team 3 (Third team), Rotation start: 2016-10-29, Rotation periods: [Day (on), Night (on), (off) ], Rotation duration: PT72H, Days in rotation: 3, Scheduled working time: PT24H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-Total team coverage: 100%
+   (1) Team 1 (First team), Rotation start: 2021-11-01, DNO (DNO)
+Rotation periods: [Day (on), Night (on), DAY_OFF (off)], Rotation duration: 3D:0H:0M, Days in rotation: 3.0, Scheduled working time: 1D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+   (2) Team 2 (Second team), Rotation start: 2021-10-31, DNO (DNO)
+Rotation periods: [Day (on), Night (on), DAY_OFF (off)], Rotation duration: 3D:0H:0M, Days in rotation: 3.0, Scheduled working time: 1D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+   (3) Team 3 (Third team), Rotation start: 2021-10-30, DNO (DNO)
+Rotation periods: [Day (on), Night (on), DAY_OFF (off)], Rotation duration: 3D:0H:0M, Days in rotation: 3.0, Scheduled working time: 1D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+Total team coverage: : 100.00%
 ```
 
 To print shift instances between two dates, the following method is called:
 
- ```java
-schedule.printShiftInstances(LocalDate.of(2016, 10, 31), LocalDate.of(2016, 11, 3)));
+ ```python
+self.workSchedule.printShiftInstances(date(2021, 11, 1), date(2021, 11, 3))
 ```
 with output:
 
-```java
+```python
 Working shifts
-[1] Day: 2016-10-31
-   (1) Team: Team 1, Shift: Day, Start : 2016-10-31T07:00, End : 2016-10-31T19:00
-   (2) Team: Team 2, Shift: Night, Start : 2016-10-31T19:00, End : 2016-11-01T07:00
-[2] Day: 2016-11-01
-   (1) Team: Team 3, Shift: Day, Start : 2016-11-01T07:00, End : 2016-11-01T19:00
-   (2) Team: Team 1, Shift: Night, Start : 2016-11-01T19:00, End : 2016-11-02T07:00
-[3] Day: 2016-11-02
-   (1) Team: Team 2, Shift: Day, Start : 2016-11-02T07:00, End : 2016-11-02T19:00
-   (2) Team: Team 3, Shift: Night, Start : 2016-11-02T19:00, End : 2016-11-03T07:00
-[4] Day: 2016-11-03
-   (1) Team: Team 1, Shift: Day, Start : 2016-11-03T07:00, End : 2016-11-03T19:00
-   (2) Team: Team 2, Shift: Night, Start : 2016-11-03T19:00, End : 2016-11-04T07:00
+[1] Day: 2021-11-01
+   (1) Team: Team 1, Shift: Day, Start: 2021-11-01 07:00:00, End: 2021-11-01 19:00:00
+   (2) Team: Team 2, Shift: Night, Start: 2021-11-01 19:00:00, End: 2021-11-02 07:00:00
+[2] Day: 2021-11-02
+   (1) Team: Team 3, Shift: Day, Start: 2021-11-02 07:00:00, End: 2021-11-02 19:00:00
+   (2) Team: Team 1, Shift: Night, Start: 2021-11-02 19:00:00, End: 2021-11-03 07:00:00
+[3] Day: 2021-11-03
+   (1) Team: Team 2, Shift: Day, Start: 2021-11-03 07:00:00, End: 2021-11-03 19:00:00
+   (2) Team: Team 3, Shift: Night, Start: 2021-11-03 19:00:00, End: 2021-11-04 07:00:00
 ```
  
 For a second example, the 24/7 schedule below has two rotations for four teams in two shifts.  It is used by manufacturing companies.
 
-```java
-WorkSchedule schedule = new WorkSchedule("Manufacturing Company - four twelves",
-	"Four 12 hour alternating day/night shifts");
+```python
+        self.workSchedule = WorkSchedule("Manufacturing Company - four twelves",
+            "Four 12 hour alternating day/night shifts")
 
-// day shift, start at 07:00 for 12 hours
-Shift day = schedule.createShift("Day", "Day shift", LocalTime.of(7, 0, 0), Duration.ofHours(12));
+        # day shift, start at 07:00 for 12 hours
+        day = self.workSchedule.createShift("Day", "Day shift", time(7, 0, 0), timedelta(hours=12))
 
-// night shift, start at 19:00 for 12 hours
-Shift night = schedule.createShift("Night", "Night shift", LocalTime.of(19, 0, 0), Duration.ofHours(12));
+        # night shift, start at 19:00 for 12 hours
+        night = self.workSchedule.createShift("Night", "Night shift", time(19, 0, 0), timedelta(hours=12))
 
-// 7 days ON, 7 OFF
-Rotation dayRotation = new Rotation("Day", "Day");
-dayRotation.addSegment(day, 7, 7);
+        # 7 days ON, 7 OFF
+        dayRotation = self.workSchedule.createRotation("Day", "Day")
+        dayRotation.addSegment(day, 7, 7)
 
-// 7 nights ON, 7 OFF
-Rotation nightRotation = new Rotation("Night", "Night");
-nightRotation.addSegment(night, 7, 7);
+        # 7 nights ON, 7 OFF
+        nightRotation = self.workSchedule.createRotation("Night", "Night")
+        nightRotation.addSegment(night, 7, 7)
 
-schedule.createTeam("A", "A day shift", dayRotation, LocalDate.of(2014, 1, 2));
-schedule.createTeam("B", "B night shift", nightRotation, LocalDate.of(2014, 1, 2));
-schedule.createTeam("C", "C day shift", dayRotation, LocalDate.of(2014, 1, 9));
-schedule.createTeam("D", "D night shift", nightRotation, LocalDate.of(2014, 1, 9));
+        self.workSchedule.createTeam("A", "A day shift", dayRotation, date(2014, 1, 2))
+        self.workSchedule.createTeam("B", "B night shift", nightRotation, date(2014, 1, 2))
+        self.workSchedule.createTeam("C", "C day shift", dayRotation, date(2014, 1, 9))
+        self.workSchedule.createTeam("D", "D night shift", nightRotation, date(2014, 1, 9))
 ```
 
 When printed out for a week of shift instances, the output is:
 
-```java
+```python
 Schedule: Manufacturing Company - four twelves (Four 12 hour alternating day/night shifts)
-Rotation duration: PT1344H, Scheduled working time: PT336H
+Rotation duration: 56D:0H:0M, Scheduled working time: 14D:0H:0M
 Shifts: 
-   (1) Day (Day shift), Start : 07:00 (PT12H), End : 19:00
-   (2) Night (Night shift), Start : 19:00 (PT12H), End : 07:00
+   (1) Day (Day shift), Start: 07:00:00 (0D:12H:0M), End: 19:00:00
+   (2) Night (Night shift), Start: 19:00:00 (0D:12H:0M), End: 07:00:00
 Teams: 
-   (1) A (A day shift), Rotation start: 2014-01-02, Rotation periods: [Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT336H, Days in rotation: 14, Scheduled working time: PT84H, Percentage worked: 25%, Average hours worked per week: PT42H
-   (2) B (B night shift), Rotation start: 2014-01-02, Rotation periods: [Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT336H, Days in rotation: 14, Scheduled working time: PT84H, Percentage worked: 25%, Average hours worked per week: PT42H
-   (3) C (C day shift), Rotation start: 2014-01-09, Rotation periods: [Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT336H, Days in rotation: 14, Scheduled working time: PT84H, Percentage worked: 25%, Average hours worked per week: PT42H
-   (4) D (D night shift), Rotation start: 2014-01-09, Rotation periods: [Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT336H, Days in rotation: 14, Scheduled working time: PT84H, Percentage worked: 25%, Average hours worked per week: PT42H
-Total team coverage: 100%
+   (1) A (A day shift), Rotation start: 2014-01-02, Day (Day)
+Rotation periods: [Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 14D:0H:0M, Days in rotation: 14.0, Scheduled working time: 3D:12H:0M, Percentage worked: 25.000%, Average hours worked per week: : 42.000
+   (2) B (B night shift), Rotation start: 2014-01-02, Night (Night)
+Rotation periods: [Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 14D:0H:0M, Days in rotation: 14.0, Scheduled working time: 3D:12H:0M, Percentage worked: 25.000%, Average hours worked per week: : 42.000
+   (3) C (C day shift), Rotation start: 2014-01-09, Day (Day)
+Rotation periods: [Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), Day (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 14D:0H:0M, Days in rotation: 14.0, Scheduled working time: 3D:12H:0M, Percentage worked: 25.000%, Average hours worked per week: : 42.000
+   (4) D (D night shift), Rotation start: 2014-01-09, Night (Night)
+Rotation periods: [Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), Night (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 14D:0H:0M, Days in rotation: 14.0, Scheduled working time: 3D:12H:0M, Percentage worked: 25.000%, Average hours worked per week: : 42.000
+Total team coverage: : 100.00%
 Working shifts
-[1] Day: 2014-01-09
-   (1) Team: C, Shift: Day, Start : 2014-01-09T07:00, End : 2014-01-09T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-09T19:00, End : 2014-01-10T07:00
-[2] Day: 2014-01-10
-   (1) Team: C, Shift: Day, Start : 2014-01-10T07:00, End : 2014-01-10T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-10T19:00, End : 2014-01-11T07:00
-[3] Day: 2014-01-11
-   (1) Team: C, Shift: Day, Start : 2014-01-11T07:00, End : 2014-01-11T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-11T19:00, End : 2014-01-12T07:00
-[4] Day: 2014-01-12
-   (1) Team: C, Shift: Day, Start : 2014-01-12T07:00, End : 2014-01-12T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-12T19:00, End : 2014-01-13T07:00
-[5] Day: 2014-01-13
-   (1) Team: C, Shift: Day, Start : 2014-01-13T07:00, End : 2014-01-13T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-13T19:00, End : 2014-01-14T07:00
-[6] Day: 2014-01-14
-   (1) Team: C, Shift: Day, Start : 2014-01-14T07:00, End : 2014-01-14T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-14T19:00, End : 2014-01-15T07:00
-[7] Day: 2014-01-15
-   (1) Team: C, Shift: Day, Start : 2014-01-15T07:00, End : 2014-01-15T19:00
-   (2) Team: D, Shift: Night, Start : 2014-01-15T19:00, End : 2014-01-16T07:00
+[1] Day: 2021-11-01
+   (1) Team: A, Shift: Day, Start: 2021-11-01 07:00:00, End: 2021-11-01 19:00:00
+   (2) Team: B, Shift: Night, Start: 2021-11-01 19:00:00, End: 2021-11-02 07:00:00
+[2] Day: 2021-11-02
+   (1) Team: A, Shift: Day, Start: 2021-11-02 07:00:00, End: 2021-11-02 19:00:00
+   (2) Team: B, Shift: Night, Start: 2021-11-02 19:00:00, End: 2021-11-03 07:00:00
+[3] Day: 2021-11-03
+   (1) Team: A, Shift: Day, Start: 2021-11-03 07:00:00, End: 2021-11-03 19:00:00
+   (2) Team: B, Shift: Night, Start: 2021-11-03 19:00:00, End: 2021-11-04 07:00:00
+[4] Day: 2021-11-04
+   (1) Team: C, Shift: Day, Start: 2021-11-04 07:00:00, End: 2021-11-04 19:00:00
+   (2) Team: D, Shift: Night, Start: 2021-11-04 19:00:00, End: 2021-11-05 07:00:00
+[5] Day: 2021-11-05
+   (1) Team: C, Shift: Day, Start: 2021-11-05 07:00:00, End: 2021-11-05 19:00:00
+   (2) Team: D, Shift: Night, Start: 2021-11-05 19:00:00, End: 2021-11-06 07:00:00
+[6] Day: 2021-11-06
+   (1) Team: C, Shift: Day, Start: 2021-11-06 07:00:00, End: 2021-11-06 19:00:00
+   (2) Team: D, Shift: Night, Start: 2021-11-06 19:00:00, End: 2021-11-07 07:00:00
+[7] Day: 2021-11-07
+   (1) Team: C, Shift: Day, Start: 2021-11-07 07:00:00, End: 2021-11-07 19:00:00
+   (2) Team: D, Shift: Night, Start: 2021-11-07 19:00:00, End: 2021-11-08 07:00:00
 ```
 
-For a third example, the work schedule below with one 24 hour shift over an 18 day rotation for three platoons is used by Kern County California firefighters.
+For a third example, the work schedule below with one 24 hour shift over an 18 day rotation for three platoons is used by Kern County, California firefighters.
 
-```java
-WorkSchedule schedule = new WorkSchedule("Kern Co.", "Three 24 hour alternating shifts");
+```python
+        # Kern Co, CA
+        self.workSchedule = WorkSchedule("Kern Co.", "Three 24 hour alternating shifts")
 
-// shift, start 07:00 for 24 hours
-Shift shift = schedule.createShift("24 Hour", "24 hour shift", LocalTime.of(7, 0, 0), Duration.ofHours(24));
+        # shift, start 07:00 for 24 hours
+        shift = self.workSchedule.createShift("24 Hour", "24 hour shift", time(7, 0, 0), timedelta(hours=24))
 
-// 2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF
-Rotation rotation = new Rotation("24 Hour", "2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF");
-rotation.addSegment(shift, 2, 2);
-rotation.addSegment(shift, 2, 2);
-rotation.addSegment(shift, 2, 8);
+        # 2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF
+        rotation = self.workSchedule.createRotation("24 Hour", "2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF")
+        rotation.addSegment(shift, 2, 2)
+        rotation.addSegment(shift, 2, 2)
+        rotation.addSegment(shift, 2, 8)
 
-Team platoon1 = schedule.createTeam("Red", "A Shift", rotation, LocalDate.of(2017, 1, 8));
-Team platoon2 = schedule.createTeam("Black", "B Shift", rotation, LocalDate.of(2017, 2, 1));
-Team platoon3 = schedule.createTeam("Green", "C Shift", rotation, LocalDate.of(2017, 1, 2));
+        self.workSchedule.createTeam("Red", "A Shift", rotation, date(2017, 1, 8))
+        self.workSchedule.createTeam("Black", "B Shift", rotation, date(2017, 2, 1))
+        self.workSchedule.createTeam("Green", "C Shift", rotation, date(2017, 1, 2))
 ```
 
 When printed out for a week of shift instances, the output is:
-```java
+```python
 Schedule: Kern Co. (Three 24 hour alternating shifts)
-Rotation duration: PT1296H, Scheduled working time: PT432H
+Rotation duration: 54D:0H:0M, Scheduled working time: 18D:0H:0M
 Shifts: 
-   (1) 24 Hour (24 hour shift), Start : 07:00 (PT24H), End : 07:00
+   (1) 24 Hour (24 hour shift), Start: 07:00:00 (1D:0H:0M), End: 07:00:00
 Teams: 
-   (1) Red (A Shift), Rotation start: 2017-01-08, Rotation periods: [24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT432H, Days in rotation: 18, Scheduled working time: PT144H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-   (2) Black (B Shift), Rotation start: 2017-02-01, Rotation periods: [24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT432H, Days in rotation: 18, Scheduled working time: PT144H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-   (3) Green (C Shift), Rotation start: 2017-01-02, Rotation periods: [24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), 24 Hour (on), 24 Hour (on), (off), (off), (off), (off), (off), (off), (off), (off) ], Rotation duration: PT432H, Days in rotation: 18, Scheduled working time: PT144H, Percentage worked: 33.33%, Average hours worked per week: PT56H
-Total team coverage: 100%
+   (1) Red (A Shift), Rotation start: 2017-01-08, 24 Hour (2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF)
+Rotation periods: [24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 18D:0H:0M, Days in rotation: 18.0, Scheduled working time: 6D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+   (2) Black (B Shift), Rotation start: 2017-02-01, 24 Hour (2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF)
+Rotation periods: [24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 18D:0H:0M, Days in rotation: 18.0, Scheduled working time: 6D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+   (3) Green (C Shift), Rotation start: 2017-01-02, 24 Hour (2 days ON, 2 OFF, 2 ON, 2 OFF, 2 ON, 8 OFF)
+Rotation periods: [24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), 24 Hour (on), 24 Hour (on), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off), DAY_OFF (off)], Rotation duration: 18D:0H:0M, Days in rotation: 18.0, Scheduled working time: 6D:0H:0M, Percentage worked: 33.333%, Average hours worked per week: : 56.000
+Total team coverage: : 100.00%
 Working shifts
-[1] Day: 2017-02-01
-   (1) Team: Black, Shift: 24 Hour, Start : 2017-02-01T07:00, End : 2017-02-02T07:00
-[2] Day: 2017-02-02
-   (1) Team: Black, Shift: 24 Hour, Start : 2017-02-02T07:00, End : 2017-02-03T07:00
-[3] Day: 2017-02-03
-   (1) Team: Red, Shift: 24 Hour, Start : 2017-02-03T07:00, End : 2017-02-04T07:00
-[4] Day: 2017-02-04
-   (1) Team: Red, Shift: 24 Hour, Start : 2017-02-04T07:00, End : 2017-02-05T07:00
-[5] Day: 2017-02-05
-   (1) Team: Black, Shift: 24 Hour, Start : 2017-02-05T07:00, End : 2017-02-06T07:00
-[6] Day: 2017-02-06
-   (1) Team: Black, Shift: 24 Hour, Start : 2017-02-06T07:00, End : 2017-02-07T07:00
-[7] Day: 2017-02-07
-   (1) Team: Green, Shift: 24 Hour, Start : 2017-02-07T07:00, End : 2017-02-08T07:00
+[1] Day: 2021-11-01
+   (1) Team: Green, Shift: 24 Hour, Start: 2021-11-01 07:00:00, End: 2021-11-02 07:00:00
+[2] Day: 2021-11-02
+   (1) Team: Green, Shift: 24 Hour, Start: 2021-11-02 07:00:00, End: 2021-11-03 07:00:00
+[3] Day: 2021-11-03
+   (1) Team: Black, Shift: 24 Hour, Start: 2021-11-03 07:00:00, End: 2021-11-04 07:00:00
+[4] Day: 2021-11-04
+   (1) Team: Black, Shift: 24 Hour, Start: 2021-11-04 07:00:00, End: 2021-11-05 07:00:00
+[5] Day: 2021-11-05
+   (1) Team: Green, Shift: 24 Hour, Start: 2021-11-05 07:00:00, End: 2021-11-06 07:00:00
+[6] Day: 2021-11-06
+   (1) Team: Green, Shift: 24 Hour, Start: 2021-11-06 07:00:00, End: 2021-11-07 07:00:00
+[7] Day: 2021-11-07
+   (1) Team: Red, Shift: 24 Hour, Start: 2021-11-07 07:00:00, End: 2021-11-08 07:00:00
 ```
-
-## Work Schedule Application
-An example work schedule application has been built to demonstrate fundamental capabilities of the library.  The user interface is implemented in JavaFX 8 and database persistency is provided by JPA (Java Persistence API) with FXML descriptors in the shift_orm.xml file.  Hibernate is the JPA implementation for a Microsoft SQL Server 2008 database.
-
-The editor allows new schedules to be created and saved to the database as well as updated and deleted.
-
-The screen capture below shows shift instances for the month of June, 2017 with the DNO schedule selected.
-![DNO Instances Diagram](https://github.com/point85/shift/blob/master/doc/ShiftInstances.png)
-
-The "Editor ..." button launches the editor (see below).  To display shift instances, follow these steps:
-*  Select the schedule in the drop-down, e.g. DNO Plan.  
-*  Choose the beginning date from the picker and enter the beginning time of day (hour:minute)
-*  Choose the ending date from the picker and enter the ending time of day (hour:minute)
-*  Click the "Show Shifts" button.  The shift instances starting in each day will be displayed in the table along with the total working and non-working time for each such shift instance. 
-
-The screen capture below shows the work schedule editor with the Shift tab selected.
-![Schedule Editor Diagram](https://github.com/point85/shift/blob/master/doc/ShiftEditor.png)
-
-The screen capture below shows the work schedule editor with the Rotations tab selected.  The rotation duration is displayed in the table.
-![Schedule Editor Diagram](https://github.com/point85/shift/blob/master/doc/RotationEditor.png)
-
-The screen capture below shows the work schedule editor with the Teams tab selected.  The average hours worked per week is displayed in the table.
-![Schedule Editor Diagram](https://github.com/point85/shift/blob/master/doc/TeamEditor.png)
-
-The screen capture below shows the work schedule editor with the Non-working Periods tab selected.
-![Schedule Editor Diagram](https://github.com/point85/shift/blob/master/doc/NonWorkingEditor.png)
-
-To create a work schedule, click the "New" button and follow these steps:
-*  Enter a name and description.
-*  Select the Shifts tab.  Click New and enter the shift information.  Click Add to create a shift.  To update a shift, select it in the table, edit the information and click Update.  Click Remove to delete it.
-*  Follow these steps for the Rotations, Teams and Non-working Periods tabs.
-*  Click the "Save" button.  The new work schedule will appear in the list view on the left
-
-To edit a work schedule, select it in the list view.  It's properties will be displayed on the right.  Change properties as required, then click the "Save" button.
-
-To refresh the state of the work schedule that is selected in the list view from the database, click the "Refresh" button.
-
-To delete a work schedule, select it in the list view then click the "Delete" button.
 
 ## Project Structure
-Shift depends upon Java 8+ due to use of the java date and time classes.  The unit tests depend on JUnit (http://junit.org/junit4/) and Hamcrest (http://hamcrest.org/).
+PyShift was developed in Python 3.9.7.  The unit testswere run with Python unit-test.
 
-Shift, when built with Gradle, has the following structure:
- * `/build/docs/javadoc` javadoc files
- * `/build/libs` compiled shift.jar 
- * `/doc` documentation
- * `/src/main/java` - java source files
- * `/src/main/resources` - localizable Message.properties file to define error messages.
- * `/src/test/java` - JUnit test java source files 
- * `/src/ui/java` - java source files for JPA persistency and JavaFX 8 user interface for the application
- * `/src/ui/resources` - images and XML files for for JPA persistency
- * `/database/mssql` - Microsoft SQL Server SQL script files for table and index generation
- 
-When Shift is built with Maven, the javadoc and jar files are in the 'target' folder.
+PyShift has the following structure:
+ * '/' - doc.zip (DOxygen documentation), setup.py, README.md
+ * `/workschedule` - Python source files
+ * `/workschedule/locales` - .mo and .po text translation files for locales
+ * `/test` - unit test Python source files 
+ * `/scripts` - Windows shell script to create compiled message translation files
+
 
