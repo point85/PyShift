@@ -58,7 +58,7 @@ The DNO schedule discussed above is defined as follows.
         self.workSchedule.createTeam("Team 2", "Second team", rotation, referenceDate - timedelta(days=1))
         self.workSchedule.createTeam("Team 3", "Third team", rotation, referenceDate - timedelta(days=2))
 ```
-To obtain the working time over three days starting at 07:00, the following methods are called:
+To obtain the working time over three days starting at 07:00, the following method is called:
 
 ```python
         fromDateTime = datetime.combine(date(2021, 11, 2), time(7, 0, 0))
@@ -234,7 +234,7 @@ Working shifts
 ```
 
 ## Project Structure
-PyShift was developed in Python 3.9.7.  The unit testswere run with Python unit-test.
+PyShift was developed in Python 3.9.7.  The unit tests were run with Python unit-test.
 
 PyShift has the following structure:
  * '/' - doc.zip (DOxygen documentation), setup.py, README.md
