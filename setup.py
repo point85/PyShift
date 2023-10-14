@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name = "PyShift",
     packages = ["PyShift"],
-    version = "1.0.0",
+    version = "1.0.1",
     description = "Work schedule library for Python",
     author = "Kent Randall",
     author_email = "point85.llc@gmail.com",

@@ -1,4 +1,7 @@
 PyShift Release Notes
 
 v1.0.0 November 3, 2021
-- Initial release
+- Initial releasev1.0.0 November 3, 2021
+
+v1.0.1 October 13, 2023
+- Updated for Python 3.12
