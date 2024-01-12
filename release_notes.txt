@@ -5,3 +5,6 @@ v1.0.0 November 3, 2021
 
 v1.0.1 October 13, 2023
 - Updated for Python 3.12
+
+v1.0.2 January 11, 2024
+- Created a PyPI distribution
