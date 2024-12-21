@@ -281,10 +281,10 @@ members = sundayDay.getMembers(exceptionShift)
 ```
 
 ## PyPI
-The latest PyShift distribution is available for download at https://pypi.org/project/pyShift/.
+The latest PyShift distribution is available for download at https://pypi.org/project/PyWorkShift/.
 
 ## Project Structure
-PyShift was developed in Python 3.9.7.  The unit tests were run with Python unit-test.
+PyShift was developed in Python 3.13.1.  The unit tests were run with Python unit-test.
 
 PyShift has the following structure:
  * '/' - doc.zip (DOxygen documentation), setup.py, README.md
