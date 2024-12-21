@@ -109,3 +109,9 @@ msgstr "Shift {0} spans midnight and the working time between {1} and {2} is amb
 
 msgid "no.starting.shift"
 msgstr "The starting shift must be specified."
+
+msgid "member.id"
+msgstr "ID"
+
+msgid "team.members"
+msgstr "Members:"

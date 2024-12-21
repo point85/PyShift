@@ -6,6 +6,8 @@ from PyShift.workschedule.localizer import Localizer
 from PyShift.workschedule.shift import ShiftInstance
 from PyShift.workschedule.rotation import Rotation
 from PyShift.workschedule.shift_exception import PyShiftException
+from PyShift.workschedule.team_member import TeamMember
+from PyShift.workschedule.team_member import TeamMemberException
 
 ##
 # Class Team is a named group of individuals who rotate through a shift
@@ -28,6 +30,15 @@ class Team(Named):
         # reference date for starting the rotations
         self.rotationStart = rotationStart
         
+        # assigned members
+        self.assignedMembers = []
+        
+        # member exceptions
+        self.memberExceptions = []
+        
+        # team member exception cache by shift instance start
+        self.exceptionCache = None
+
     ##
     # Get the duration of the shift rotation
     # 
@@ -217,6 +228,8 @@ class Team(Named):
         rpct = Localizer.instance().messageStr("rotation.percentage")
         rs = Localizer.instance().messageStr("rotation.start") + ": " + str(self.rotationStart) 
         avg = Localizer.instance().messageStr("team.hours")
+        members = Localizer.instance().messageStr("team.members")
+                
         worked = rpct + ": %.3f" % self.getPercentageWorked()
         
         r = self.rotation.__str__()
@@ -224,8 +237,92 @@ class Team(Named):
 
         text = ""
         try:
-            text = super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs
+            text = super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs + "\n" + members
+            
+            for member in self.assignedMembers:
+                text += "\n\t" + member
         except:
             pass
     
         return text
+
+    ##
+    # Add a member to this team
+    # 
+    # @param member {@link TeamMember} to add
+    #
+    def addMember(self, member: TeamMember):
+        if (member not in self.assignedMembers):
+            self.assignedMembers.append(member)
+
+    ##
+    # Remove a member from this team
+    # 
+    # @param member {@link TeamMember} to remove
+    #
+    def removeMember(self, member: TeamMember):
+        if (member in self.assignedMembers):
+            self.assignedMembers.remove(member)
+
+    ##
+    # True if member is assigned to this team
+    #
+    def hasMember(self, member: TeamMember) -> bool:
+        return (member in self.assignedMembers)
+    
+    ##
+    # Add a member exception to this team
+    # 
+    # @param memberException {@link TeamMemberException} to add
+    #
+    def addMemberException(self, memberException: TeamMemberException):
+        self.memberExceptions.append(memberException)
+
+    ##
+    # Remove a member exception from this team
+    # 
+    # @param memberException {@link TeamMemberException} to remove
+    #
+    def removeMemberException(self, memberException: TeamMemberException):
+            self.memberExceptions.remove(memberException)
+         
+    def buildMemberCache(self):
+        if (self.exceptionCache is None):
+            # create it
+            self.exceptionCache = {}
+
+        self.exceptionCache.clear()
+
+        for tme in self.memberExceptions:
+            print(str(tme))
+            print(str(tme.shiftStart))
+            self.exceptionCache[tme.shiftStart] = tme
+            
+    ##
+    # Build a list of team members for the specified shift start
+    # 
+    # @param shiftStart Shift instance starting date and time
+    # @return List of [@link TeamMember]
+    #
+    def getMembers(self, shiftStart: datetime) -> []:
+        members = []
+
+        # build the cache if not already done
+        self.buildMemberCache()
+
+        # assigned to the team
+        for member in self.assignedMembers:
+            members.append(member)
+
+        # any exceptions?
+        if shiftStart in self.exceptionCache:
+            tme = self.exceptionCache[shiftStart]
+            
+            if (tme.addition is not None):
+                members.append(tme.addition)
+
+            if (tme.removal is not None):
+                members.remove(tme.removal)
+
+        return members
+    

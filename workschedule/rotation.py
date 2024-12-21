@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, time, timedelta, date
 from operator import attrgetter
 
 from PyShift.workschedule.named import Named
@@ -69,7 +69,7 @@ class Rotation(Named):
     @staticmethod    
     def getDayOff() -> DayOff:
         if (Rotation.dayOff is None):
-            midnight = datetime.combine(date.today(), datetime.min.time())
+            midnight = datetime.combine(date.today(), time.min)
             dayOff = DayOff("DAY_OFF", "24 hour off period", midnight, timedelta(hours=24))
         return dayOff
     

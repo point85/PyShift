@@ -258,6 +258,12 @@ class ShiftInstance:
         s = Localizer.instance().messageStr("shift")
         ps = Localizer.instance().messageStr("period.start")
         pe = Localizer.instance().messageStr("period.end")
+        members = Localizer.instance().messageStr("team.members")
 
-        text = " " + t + ": " + self.team.name + ", " + s + ": " + self.shift.name + ", " + ps + ": " + str(self.startDateTime) + ", " + pe + ": " + str(self.getEndTime())
+        text = " " + t + ": " + self.team.name + ", " + s + ": " + self.shift.name + ", " + ps + ": " + str(self.startDateTime) + ", " + pe + ": " + str(self.getEndTime()) + "\n" + members
+        
+        for member in self.team.getMembers(self.startDateTime):
+            text += "\n\t" + str(member)
+
         return text
+    

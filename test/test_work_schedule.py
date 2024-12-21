@@ -4,6 +4,7 @@ from PyShift.workschedule.work_schedule import WorkSchedule
 from PyShift.workschedule.shift import Shift
 from PyShift.workschedule.rotation import Rotation, RotationSegment
 from PyShift.workschedule.team import Team
+from PyShift.workschedule.team_member import TeamMember, TeamMemberException
 
 class TestWorkSchedule(BaseTest):
     def testTeamWorkingTime2(self):
@@ -33,7 +34,7 @@ class TestWorkSchedule(BaseTest):
         fromDateTime = datetime.combine(testStart, am7)
         toDateTime = datetime.combine(testStart, time(hour=am7.hour+1))
         
-        duration = team1.calculateWorkingTime(fromDateTime, toDateTime);
+        duration = team1.calculateWorkingTime(fromDateTime, toDateTime)
         self.assertTrue(duration == timedelta(hours=1))
 
         fromDateTime = datetime.combine(testStart, time.min)
@@ -469,7 +470,9 @@ class TestWorkSchedule(BaseTest):
 
         try:
             # crosses midnight
-            shift.calculateWorkingTime(time(shiftStart.hour-1), shift.getEndTime() + timedelta(hours=1))
+            endToday = datetime.combine(datetime.today(), shift.getEndTime())
+            tomorrow = endToday +  timedelta(hours=1)
+            shift.calculateWorkingTime(time(shiftStart.hour-1), tomorrow.time())
             self.fail()
         except Exception as e:
             # expected
@@ -610,8 +613,6 @@ class TestWorkSchedule(BaseTest):
         teams[team.name] = team
         value = teams[team.name]
         self.assertTrue(value is not None)
-    
-    
     
     def testShiftWorkingTime(self):
         self.workSchedule = WorkSchedule("Working Time1", "Test working time")
@@ -1006,3 +1007,109 @@ class TestWorkSchedule(BaseTest):
         duration = self.workSchedule.calculateNonWorkingTime(fromDateTime, toDateTime)
         self.assertTrue(duration == timedelta(hours=8))
     
+    def testTeamMembers(self):
+        self.workSchedule = WorkSchedule("Restaurant", "Two shifts")
+
+        # day shift (12 hours)
+        day = self.workSchedule.createShift("Day", "Green", time(6, 0, 0), timedelta(hours=12))
+
+        # night shift (3 hours)
+        night = self.workSchedule.createShift("Night", "Blue", time(18, 0, 0), timedelta(hours=3))
+
+        # day shift rotation, 1 days ON, 0 OFF
+        dayRotation = self.workSchedule.createRotation("Day", "One day on, 6 off")
+        dayRotation.addSegment(day, 1, 6)
+
+        nightRotation = self.workSchedule.createRotation("Night", "One day on, 6 off")
+        nightRotation.addSegment(night, 1, 6)
+
+        # day teams
+        greenStart = date(2024, 7, 28)
+        sundayDay = self.workSchedule.createTeam("SundayDay", "Sunday day", dayRotation, greenStart)
+        mondayDay = self.workSchedule.createTeam("MondayDay", "Monday day", dayRotation, greenStart + timedelta(days=1))
+        tuesdayDay = self.workSchedule.createTeam("TuesdayDay", "Tuesday day", dayRotation, greenStart + timedelta(days=2))
+        wednesdayDay = self.workSchedule.createTeam("WednesdayDay", "Wednesday day", dayRotation, greenStart + timedelta(days=3))
+        thursdayDay = self.workSchedule.createTeam("ThursdayDay", "Thursday day", dayRotation, greenStart + timedelta(days=4))
+        fridayDay = self.workSchedule.createTeam("FridayDay", "Friday day", dayRotation, greenStart + timedelta(days=5))
+        saturdayDay = self.workSchedule.createTeam("SaturdayDay", "Saturday day", dayRotation, greenStart + timedelta(days=6))
+
+        # night teams
+        blueStart = date(2024, 7, 29)
+        mondayNight = self.workSchedule.createTeam("MondayNight", "Monday night", nightRotation, blueStart)
+        tuesdayNight = self.workSchedule.createTeam("TuesdayNight", "Tuesday night", nightRotation, blueStart + timedelta(days=1))
+        wednesdayNight = self.workSchedule.createTeam("WednesdayNight", "Wednesday night", nightRotation,
+                blueStart + timedelta(days=2))
+        thursdayNight = self.workSchedule.createTeam("ThursdayNight", "Thursday night", nightRotation,
+                blueStart + timedelta(days=3))
+        fridayNight = self.workSchedule.createTeam("FridayNight", "Friday night", nightRotation, blueStart + timedelta(days=4))
+        saturdayNight = self.workSchedule.createTeam("SaturdayNight", "Saturday night", nightRotation,
+                blueStart + timedelta(days=5))
+
+        # chef members
+        one = TeamMember("Chef, One", "Chef", "1")
+        two = TeamMember("Chef, Two", "Chef", "2")
+        three = TeamMember("Chef, Three", "Chef", "3")
+        four = TeamMember("Chef, Four", "Chef", "4")
+        five = TeamMember("Chef, Five", "Chef", "5")
+        six = TeamMember("Chef, Six", "Chef", "6")
+        seven = TeamMember("Chef, Seven", "Chef", "7")
+
+        # helper members
+        eight = TeamMember("Helper, One", "Helper", "8")
+        nine = TeamMember("Helper, Two", "Helper", "9")
+
+        # day members
+        sundayDay.addMember(one)
+        sundayDay.addMember(two)
+        sundayDay.addMember(eight)
+        mondayDay.addMember(one)
+        mondayDay.addMember(two)
+        mondayDay.addMember(nine)
+        tuesdayDay.addMember(three)
+        wednesdayDay.addMember(four)
+        thursdayDay.addMember(five)
+        fridayDay.addMember(six)
+        saturdayDay.addMember(seven)
+
+        # night members
+        mondayNight.addMember(four)
+        tuesdayNight.addMember(five)
+        wednesdayNight.addMember(six)
+        thursdayNight.addMember(seven)
+        fridayNight.addMember(one)
+        saturdayNight.addMember(two)
+
+        self.workSchedule.printShiftInstances(date(2024, 8, 4), date(2024, 8, 11))
+
+        for team in self.workSchedule.teams:
+            print(team.__str__())
+
+        self.assertTrue(sundayDay.hasMember(two))
+
+        sundayDay.removeMember(two)
+
+        self.assertFalse(sundayDay.hasMember(two))
+
+        # member exceptions
+        ten = TeamMember("Ten", "Ten description", "10")
+
+        # replace one with ten
+        exceptionShift = datetime.combine(date(2024, 8, 11), time(7, 0, 0))
+        replacement = TeamMemberException(exceptionShift)
+        replacement.removal = one
+        replacement.addition = ten
+        sundayDay.addMemberException(replacement)
+
+        self.assertTrue(one in sundayDay.assignedMembers)
+        self.assertFalse(ten in sundayDay.assignedMembers)
+
+        members = sundayDay.getMembers(exceptionShift)
+        
+        for member in members:
+            print(str(member))
+
+        self.assertFalse(one in members)
+        self.assertTrue(ten in members)
+
+        for team in self.workSchedule.teams:
+            print(str(team))    

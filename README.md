@@ -11,9 +11,21 @@ The diagram below illustrates Business Management Systems' DNO (Day, Night, Off)
 
 A shift is defined with a name, description, starting time of day and duration.  An off-shift period is associated with a shift.  In the example above for Team1, there are two shifts followed by one off-shift period.  Shifts can be overlapped (typically when a handoff of duties is important such as in the nursing profession).  A rotation is a sequence of shifts and off-shift days.  The DNO rotation is Day on, Night on and Night off.  An instance of a shift has a starting date and time of day and has an associated shift definition.
 
+*Break*
+
+A break is a defined working period of time during a shift, for example lunch.  A shift can have zero or more breaks.
+
 *Team*
 
 A team is defined with a name and description.  It has a rotation with a starting date.  The starting date shift will have an instance with that date and a starting time of day as defined by the shift.  The same rotation can be shared between more than one team, but with different starting times.
+
+*Team Member*
+
+A team member is a person assigned to a team.  The member is identified by a member ID (e.g. employee ID), name and description/title.
+
+*Team Member Exception*
+
+A team member exception is an addition and/or removal from the assigned members of a team for a specified shift instance.  The instance is identified by the starting date and time.
 
 *Work Schedule*
 
@@ -232,6 +244,44 @@ Working shifts
 [7] Day: 2021-11-07
    (1) Team: Red, Shift: 24 Hour, Start: 2021-11-07 07:00:00, End: 2021-11-08 07:00:00
 ```
+
+For a another example, a restaurant shift that starts at 7 am on August 8, 2024, team member #1 called in sick and is to be replaced by member #10:
+```python
+self.workSchedule = WorkSchedule("Restaurant", "Two shifts")
+
+# day shift (12 hours)
+day = self.workSchedule.createShift("Day", "Green", time(6, 0, 0), timedelta(hours=12))
+        
+# day shift rotation, 1 days ON, 0 OFF
+dayRotation = self.workSchedule.createRotation("Day", "One day on, 6 off")
+dayRotation.addSegment(day, 1, 6)
+
+# day teams
+greenStart = date(2024, 7, 28)
+sundayDay = self.workSchedule.createTeam("SundayDay", "Sunday day", dayRotation, greenStart)
+
+# chef members
+one = TeamMember("Chef, One", "Chef", "1")
+two = TeamMember("Chef, Two", "Chef", "2")
+three = TeamMember("Chef, Three", "Chef", "3")        
+        
+# day members (one and two are in sundayDay.assignedMembers)
+sundayDay.addMember(one) 
+sundayDay.addMember(two) 
+        
+# replace one with three for this shift instance start
+exceptionShift = datetime.combine(date(2024, 8, 11), time(7, 0, 0))
+replacement = TeamMemberException(exceptionShift)
+replacement.removal = one
+replacement.addition = three
+sundayDay.addMemberException(replacement)     
+        
+#  two and three are the team members for this shift instance
+members = sundayDay.getMembers(exceptionShift)  
+```
+
+## PyPI
+The latest PyShift distribution is available for download at https://pypi.org/project/pyShift/.
 
 ## Project Structure
 PyShift was developed in Python 3.9.7.  The unit tests were run with Python unit-test.
