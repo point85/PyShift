@@ -19,7 +19,7 @@ class TimePeriod(Named):
     # @param startTime Starting date and time of day
     # @param duration Duration of time period
     #    
-    def __init__(self, name : str, description : str, startTime : datetime, duration : timedelta):
+    def __init__(self, name : str, description : str, startTime : time, duration : timedelta):
         super().__init__(name, description)
         self.setStartTime(startTime)
         self.setDuration(duration)
@@ -48,8 +48,8 @@ class TimePeriod(Named):
     # @return new time
     #
     def timePlus(self, dayTime: time, duration: timedelta) -> time:
-        # unused date portion
-        start = datetime.combine(date.today(), time(hour=dayTime.hour, minute=dayTime.minute, second=dayTime.second))
+        ## unused date portion
+        start = datetime.combine(date.today(), dayTime)
         end = start + duration
         return end.time()
 

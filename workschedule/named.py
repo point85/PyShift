@@ -31,10 +31,20 @@ class Named():
         return not self.__eq__(other)
     
     def __lt__(self, other) -> bool:
+        if other is None or not isinstance(other, Named):
+            return NotImplemented
         return self.name < other.name
-
+    
     def __gt__(self, other) -> bool:
-        return self.name > other.name     
+        if other is None or not isinstance(other, Named):
+            return NotImplemented
+        return self.name > other.name   
+    
+    def __le__(self, other) -> bool:
+        return self.name <= other.name
+    
+    def __ge__(self, other) -> bool:
+        return self.name >= other.name
         
     def __str__(self) -> str:
         return self.name + " (" + self.description + ")"
@@ -45,6 +55,9 @@ class Named():
             raise PyShiftException(msg)
         
         self.name = name
+        
+    def setDescription(self, description: str):
+        self.description = description or ""        
     
     ##
     # Compare two Named objects by name

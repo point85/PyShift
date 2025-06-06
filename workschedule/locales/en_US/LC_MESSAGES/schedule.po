@@ -99,7 +99,7 @@ msgid "shift.already.exists"
 msgstr "Shift {0} has already been created."
 
 msgid "shift.in.use"
-msgstr "Shift {0} is being used in a work schedule."
+msgstr "Shift {0} is being used by team {1}."
 
 msgid "nonworking.period.already.exists"
 msgstr "Non-working period {0} has already been created."

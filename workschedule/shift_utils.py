@@ -1,4 +1,3 @@
-from builtins import staticmethod
 from datetime import datetime, date, time, timedelta
 
 ## Utility methods
@@ -12,7 +11,8 @@ class ShiftUtils():
     @staticmethod
     def toEpochSecond(instant: datetime) -> int:
         # seconds from Unix epoch
-        return round(datetime.timestamp(instant))
+        return round(instant.timestamp())
+    
     ##
     # Get the day from the Epoch for this date
     # @param day Date
@@ -20,24 +20,23 @@ class ShiftUtils():
     #
     @staticmethod
     def toEpochDay(day: date) -> int:
-        instant = datetime.combine(day, time.min)
-        # days from Unix epoch
-        totalSeconds = datetime.timestamp(instant)
-        day = int(totalSeconds/86400)
-        return day
+        # Use UTC to avoid timezone issues
+        epoch = date(1970, 1, 1)
+        return (day - epoch).days
     
     ##
     # Format a timedelta for display
     # @param duration timedelta
-    # @return days : hours : minutes
+    # @return days : hours : minutes : seconds
     #
     @staticmethod
     def formatTimedelta(duration: timedelta) -> str:
-        days, seconds = duration.days, duration.seconds
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = (seconds % 60)
-        return str(days) + "D:" + str(hours) + "H:" + str(minutes) + "M"
+        days = duration.days
+        total_seconds = duration.seconds
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+        return f"{days}D:{hours}H:{minutes}M:{seconds}S"
     
     ##
     # Get the second from the day for this time
@@ -45,7 +44,7 @@ class ShiftUtils():
     # @return seconds of day
     #
     @staticmethod
-    def toSecondOfDay(dayTime : time) -> int:
+    def toSecondOfDay(dayTime: time) -> int:
         return dayTime.hour * 3600 + dayTime.minute * 60 + dayTime.second
     
     ##
@@ -56,10 +55,11 @@ class ShiftUtils():
     @staticmethod
     def toRoundedSecond(dayTime: time) -> int:
         second = ShiftUtils.toSecondOfDay(dayTime)
-
-        if (dayTime.microsecond > 500000):
+        
+        # Standard rounding: >= 500000 microseconds rounds up
+        if dayTime.microsecond >= 500000:
             second = second + 1
-
+        
         return second
     
     ##
@@ -69,15 +69,9 @@ class ShiftUtils():
     # @return -1 if less than, 0 if equal and 1 if greater than
     #
     @staticmethod
-    def compare(firstTime:  time, secondTime:  time) -> int:
-        value = 0
-        
-        if (firstTime < secondTime):
-            value = -1
-        elif (firstTime > secondTime):
-            value = 1
-        return value
-
-    
-    
-    
+    def compare(firstTime: time, secondTime: time) -> int:
+        if firstTime < secondTime:
+            return -1
+        elif firstTime > secondTime:
+            return 1
+        return 0

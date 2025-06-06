@@ -1,5 +1,6 @@
 from datetime import datetime, time, timedelta, date
 from operator import attrgetter
+from typing import List, Union
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
@@ -70,15 +71,15 @@ class Rotation(Named):
     def getDayOff() -> DayOff:
         if (Rotation.dayOff is None):
             midnight = datetime.combine(date.today(), time.min)
-            dayOff = DayOff("DAY_OFF", "24 hour off period", midnight, timedelta(hours=24))
-        return dayOff
+            Rotation.dayOff = DayOff("DAY_OFF", "24 hour off period", midnight, timedelta(hours=24))
+        return Rotation.dayOff 
     
     ##
     # Get the shifts and off-shifts in the rotation
     # 
     # @return List of periods
     #
-    def getPeriods(self) -> []:
+    def getPeriods(self) -> List[Union[Shift, DayOff]]:
         if (self.periods is None):
             self.periods = []
             
@@ -147,6 +148,10 @@ class Rotation(Named):
         segment = RotationSegment(startingShift, daysOn, daysOff, self)
         self.rotationSegments.append(segment)
         segment.sequence = len(self.rotationSegments)
+        
+        # Invalidate cached periods
+        self.periods = None
+        
         return segment
 
     def __str__(self) -> str:
@@ -160,7 +165,7 @@ class Rotation(Named):
 
         periods= ""
 
-        for period in self.periods:
+        for period in self.getPeriods():
             if (len(periods) > 0):
                 periods += ", "
             

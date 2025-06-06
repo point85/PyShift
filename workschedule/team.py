@@ -1,9 +1,10 @@
 from datetime import datetime, date, time, timedelta
+from typing import List
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.shift_utils import ShiftUtils
 from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift import ShiftInstance
+from PyShift.workschedule.shift_instance import ShiftInstance
 from PyShift.workschedule.rotation import Rotation
 from PyShift.workschedule.shift_exception import PyShiftException
 from PyShift.workschedule.team_member import TeamMember
@@ -155,17 +156,17 @@ class Team(Named):
     #            Ending date and time of day
     # @return Duration of working time as timedelta
     #
-    def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
-        if (fromTime > toTime):
-            msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTime, fromTime)
+    def calculateWorkingTime(self, fromTime: datetime, toTimeOfDay: datetime) -> timedelta:
+        if (fromTime > toTimeOfDay):
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTimeOfDay, fromTime)
             raise PyShiftException(msg)
     
         timeSum = timedelta(seconds=0)
 
         thisDate = fromTime.date()
         thisTime = fromTime.time()
-        toDate = toTime.date()
-        toTime = toTime.time()
+        toDate = toTimeOfDay.date()
+        toTimeOfDay = toTimeOfDay.time()
         dayCount = self.rotation.getDayCount()
 
         # get the working shift from yesterday
@@ -183,7 +184,7 @@ class Team(Named):
                 # check for days in the middle of the time period
                 lastDay = True if (thisDate == toDate) else False
                 
-                if (not lastDay or (lastDay and toTime != time.min)):
+                if (not lastDay or (lastDay and toTimeOfDay != time.min)):
                     # add time after midnight in this day
                     afterMidnightSecond = ShiftUtils.toSecondOfDay(lastShift.getEndTime())
                     fromSecond = ShiftUtils.toSecondOfDay(thisTime)
@@ -200,7 +201,7 @@ class Team(Named):
                 lastShift = instance.shift
                 # check for last date
                 if (thisDate == toDate):
-                    duration = lastShift.calculateTotalWorkingTime(thisTime, toTime, True)
+                    duration = lastShift.calculateTotalWorkingTime(thisTime, toTimeOfDay, True)
                 else:
                     duration = lastShift.calculateTotalWorkingTime(thisTime, time.max, True)
             
@@ -294,8 +295,6 @@ class Team(Named):
         self.exceptionCache.clear()
 
         for tme in self.memberExceptions:
-            print(str(tme))
-            print(str(tme.shiftStart))
             self.exceptionCache[tme.shiftStart] = tme
             
     ##
@@ -304,7 +303,7 @@ class Team(Named):
     # @param shiftStart Shift instance starting date and time
     # @return List of [@link TeamMember]
     #
-    def getMembers(self, shiftStart: datetime) -> []:
+    def getMembers(self, shiftStart: datetime) -> List[TeamMember]:
         members = []
 
         # build the cache if not already done

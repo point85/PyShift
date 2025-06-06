@@ -12,3 +12,14 @@ v1.0.2 January 11, 2024
 v1.1.0 December 20, 2024
 - Added team members and shift exceptions for the team
 - Created a PyPI distribution
+
+v1.1.1 June 5, 2025
+- Updated to  Python 3.13.4
+- DayOff: changed start datetime to time in __int__
+- Named:  added Rotation.dayOff; Invalidated cached periods in addSegments()
+- Moved ShiftInstance to its own file
+- ShiftUtils: Use UTC to avoid timezone issues, improved formatTimedelta(), toRoundedSecond() - Standard rounding, improved compare()
+- Team:  calculateWorkingTime() - rename toTime to toTimeOfDay
+- TeamMember: added setAddition() and setRemoval()
+- TimePeriod:  changed start datetime to time in __int__; simplified timePlus()
+- WorkSchedule:  fixed issue with deleteShift()

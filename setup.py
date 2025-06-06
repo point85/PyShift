@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name = "PyShift",
     packages = find_packages(),
-    version = "1.1.0",
+    version = "1.1.1",
     description = "Work schedule library for Python",
     author = "Kent Randall",
     author_email = "point85.llc@gmail.com",

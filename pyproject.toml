@@ -10,7 +10,7 @@ exclude = [".settings", ".project", ".pydevproject", "README.md"]
 
 [project]
 name = "PyWorkShift"
-version = "1.1.0"
+version = "1.1.1"
 keywords = ["shift", "work schedule", "shift calendar", "work calendar"]
 authors = [
   { name="Kent Randall", email="point85.llc@gmail.com" },

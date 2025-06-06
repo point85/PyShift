@@ -12,7 +12,7 @@ class TeamMember(Named):
     # Construct a team member
     # @param name Name of team member
     # @param description Description of team member
-    # @param id Identifer (e.g. employee ID)
+    # @param memberID Identifer (e.g. employee ID)
     # 
     def __init__(self, name: str, description: str, memberID: str):
         super().__init__(name, description)  
@@ -52,6 +52,18 @@ class TeamMemberException:
         
         # reason for the change
         self.reason: str = None  
+        
+    def setAddition(self, member: TeamMember, reason: str = None):
+        """Set the team member to add"""
+        self.addition = member
+        if reason:
+            self.reason = reason
+    
+    def setRemoval(self, member: TeamMember, reason: str = None):
+        """Set the team member to remove"""
+        self.removal = member
+        if reason:
+            self.reason = reason        
         
     def __str__(self) -> str:
         return "Shift: " + str(self.shiftStart) + ", add: " + str(self.addition) + ", remove: " +str(self.removal)              

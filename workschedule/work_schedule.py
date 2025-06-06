@@ -3,7 +3,7 @@ from operator import attrgetter
 
 from PyShift.workschedule.named import Named
 from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift import Shift, ShiftInstance
+from PyShift.workschedule.shift import Shift
 from PyShift.workschedule.team import Team
 from PyShift.workschedule.rotation import Rotation
 from PyShift.workschedule.non_working_period import NonWorkingPeriod
@@ -54,7 +54,7 @@ class WorkSchedule(Named):
     # @param period {@link NonWorkingPeriod}
     # @return time key 
     @staticmethod
-    def getPeriodKey(period: NonWorkingPeriod) -> time:
+    def getPeriodKey(period: NonWorkingPeriod) -> datetime:
         return period.startDateTime
     
     ##
@@ -63,7 +63,7 @@ class WorkSchedule(Named):
     # @param day
     #            date
     # @return list of {@link ShiftInstance}
-    def getShiftInstancesForDay(self, day: date) -> [ShiftInstance]:
+    def getShiftInstancesForDay(self, day: date) -> []:
         workingShifts = []
 
         # for each team see if there is a working shift
@@ -95,7 +95,7 @@ class WorkSchedule(Named):
     # @param dateTime
     #            Date and time of day
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForTime(self, dateTime: datetime) -> [ShiftInstance]:
+    def getShiftInstancesForTime(self, dateTime: datetime) -> []:
         workingShifts = []
 
         # day
@@ -166,14 +166,13 @@ class WorkSchedule(Named):
             return
     
         # can't be in use
-        for inUseShift in self.shifts:
-            for team in self.teams:
-                rotation = team.rotation
+        for team in self.teams:
+            rotation = team.rotation
 
-                for period in rotation.periods:
-                    if (period == inUseShift):
-                        msg = Localizer.instance().messageStr("shift.in.use").format(shift.name)
-                        raise PyShiftException(msg)
+            for period in rotation.periods:
+                if (period == shift):
+                    msg = Localizer.instance().messageStr("shift.in.use").format(shift.name, team.name)
+                    raise PyShiftException(msg)
                 
         self.shifts.remove(shift)
 

@@ -22,5 +22,5 @@ class Break(TimePeriod):
 
     ##
     # a break is a working period
-    def isWorkingPeriod(self):
+    def isWorkingPeriod(self) -> bool:
         return True
