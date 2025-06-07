@@ -23,3 +23,6 @@ v1.1.1 June 5, 2025
 - TeamMember: added setAddition() and setRemoval()
 - TimePeriod:  changed start datetime to time in __int__; simplified timePlus()
 - WorkSchedule:  fixed issue with deleteShift()
+
+v1.1.2 June 5, 2025
+-  Updated the readme for PyPi
