@@ -1,10 +1,10 @@
 from datetime import time, timedelta
 
-from PyShift.workschedule.time_period import TimePeriod
-from PyShift.workschedule.work_break import Break
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_exception import PyShiftException
-from PyShift.workschedule.shift_utils import ShiftUtils
+from .time_period import TimePeriod
+from .work_break import Break
+from .localizer import Localizer
+from .shift_exception import PyShiftException
+from .shift_utils import ShiftUtils
 
 ##
 # Class Shift is a scheduled working time period, and can include breaks.
@@ -189,13 +189,11 @@ class Shift(TimePeriod):
         return True
 
     def __str__(self) -> str:
-        text = super().__str__()
+        parts = [super().__str__()]
 
-        if (len(self.breaks) > 0):
-            text += "\n      " + str(len(self.breaks)) + " " + Localizer.instance().messageStr("breaks") + ":"
+        if self.breaks:
+            parts.append(f"      {len(self.breaks)} {Localizer.instance().messageStr('breaks')}:")
+            parts.extend(f"      {breakPeriod}" for breakPeriod in self.breaks)
     
-        for breakPeriod in self.breaks:
-            text += "\n      " + str(breakPeriod)
-    
-        return text
+        return "\n".join(parts)
     

@@ -2,12 +2,12 @@ from datetime import datetime, time, timedelta, date
 from operator import attrgetter
 from typing import List, Union
 
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.day_off import DayOff
-from PyShift.workschedule.shift_exception import PyShiftException
-from PyShift.workschedule.shift import Shift
-from PyShift.workschedule.shift_utils import ShiftUtils
+from .named import Named
+from .localizer import Localizer
+from .day_off import DayOff
+from .shift_exception import PyShiftException
+from .shift import Shift
+from .shift_utils import ShiftUtils
 
 ##
 # This class represents part of an entire rotation. The segment starts with a
@@ -163,15 +163,11 @@ class Rotation(Named):
         on = Localizer.instance().messageStr("rotation.on")
         off = Localizer.instance().messageStr("rotation.off")
 
-        periods= ""
-
-        for period in self.getPeriods():
-            if (len(periods) > 0):
-                periods += ", "
-            
-            onOff = on if period.isWorkingPeriod() else off
-            periods = periods + period.name + " (" + str(onOff) + ")"  
+        periods = ", ".join(
+            f"{period.name} ({on if period.isWorkingPeriod() else off})"
+            for period in self.getPeriods()
+        )
         
-        return named + "\n" + rper + ": [" + periods + "], " + rd  + ", " + rda + ", " + rw
+        return f"{named}\n{rper}: [{periods}], {rd}, {rda}, {rw}"
 
         

@@ -1,9 +1,11 @@
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_exception import PyShiftException
+from functools import total_ordering
+from .localizer import Localizer
+from .shift_exception import PyShiftException
 
 ##
 # Class Named represents a named object such as a Shift or Team.
 # 
+@total_ordering
 class Named():  
     ##
     # Construct a named object
@@ -19,32 +21,14 @@ class Named():
         return hash(self.name)
         
     def __eq__(self, other) -> bool:
-        answer = False
-    
-        if (other is not None and isinstance(other, Named)):
-            # same name
-            if (self.name == other.name):
-                answer = True
-        return answer
-    
-    def __ne__(self, other) -> bool:
-        return not self.__eq__(other)
+        if other is None or not isinstance(other, Named):
+            return False
+        return self.name == other.name
     
     def __lt__(self, other) -> bool:
         if other is None or not isinstance(other, Named):
             return NotImplemented
         return self.name < other.name
-    
-    def __gt__(self, other) -> bool:
-        if other is None or not isinstance(other, Named):
-            return NotImplemented
-        return self.name > other.name   
-    
-    def __le__(self, other) -> bool:
-        return self.name <= other.name
-    
-    def __ge__(self, other) -> bool:
-        return self.name >= other.name
         
     def __str__(self) -> str:
         return self.name + " (" + self.description + ")"

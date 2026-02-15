@@ -1,14 +1,14 @@
 from datetime import datetime, date, time, timedelta
-from typing import List
+from typing import List, Optional
 
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.shift_utils import ShiftUtils
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_instance import ShiftInstance
-from PyShift.workschedule.rotation import Rotation
-from PyShift.workschedule.shift_exception import PyShiftException
-from PyShift.workschedule.team_member import TeamMember
-from PyShift.workschedule.team_member import TeamMemberException
+from .named import Named
+from .shift_utils import ShiftUtils
+from .localizer import Localizer
+from .shift_instance import ShiftInstance
+from .rotation import Rotation
+from .shift_exception import PyShiftException
+from .team_member import TeamMember
+from .team_member import TeamMemberException
 
 ##
 # Class Team is a named group of individuals who rotate through a shift
@@ -107,7 +107,7 @@ class Team(Named):
     #            date with a shift instance
     # @return {@link ShiftInstance}
     #
-    def getShiftInstanceForDay(self, day: date) -> ShiftInstance:
+    def getShiftInstanceForDay(self, day: date) -> Optional[ShiftInstance]:
         shiftInstance = None
         
         #shiftRotation = self.rotation
@@ -156,17 +156,17 @@ class Team(Named):
     #            Ending date and time of day
     # @return Duration of working time as timedelta
     #
-    def calculateWorkingTime(self, fromTime: datetime, toTimeOfDay: datetime) -> timedelta:
-        if (fromTime > toTimeOfDay):
-            msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTimeOfDay, fromTime)
+    def calculateWorkingTime(self, fromTime: datetime, toTime: datetime) -> timedelta:
+        if (fromTime > toTime):
+            msg = Localizer.instance().messageStr("end.earlier.than.start").format(toTime, fromTime)
             raise PyShiftException(msg)
     
         timeSum = timedelta(seconds=0)
 
         thisDate = fromTime.date()
         thisTime = fromTime.time()
-        toDate = toTimeOfDay.date()
-        toTimeOfDay = toTimeOfDay.time()
+        toDate = toTime.date()
+        toTimeValue = toTime.time()
         dayCount = self.rotation.getDayCount()
 
         # get the working shift from yesterday
@@ -184,7 +184,7 @@ class Team(Named):
                 # check for days in the middle of the time period
                 lastDay = True if (thisDate == toDate) else False
                 
-                if (not lastDay or (lastDay and toTimeOfDay != time.min)):
+                if (not lastDay or (lastDay and toTimeValue != time.min)):
                     # add time after midnight in this day
                     afterMidnightSecond = ShiftUtils.toSecondOfDay(lastShift.getEndTime())
                     fromSecond = ShiftUtils.toSecondOfDay(thisTime)
@@ -201,7 +201,7 @@ class Team(Named):
                 lastShift = instance.shift
                 # check for last date
                 if (thisDate == toDate):
-                    duration = lastShift.calculateTotalWorkingTime(thisTime, toTimeOfDay, True)
+                    duration = lastShift.calculateTotalWorkingTime(thisTime, toTimeValue, True)
                 else:
                     duration = lastShift.calculateTotalWorkingTime(thisTime, time.max, True)
             
@@ -231,21 +231,21 @@ class Team(Named):
         avg = Localizer.instance().messageStr("team.hours")
         members = Localizer.instance().messageStr("team.members")
                 
-        worked = rpct + ": %.3f" % self.getPercentageWorked()
+        worked = f"{rpct}: {self.getPercentageWorked():.3f}"
         
         r = self.rotation.__str__()
-        hrs = ": %.3f" % self.getAverageHoursWorkedPerWeek()
+        hrs = f": {self.getAverageHoursWorkedPerWeek():.3f}"
 
-        text = ""
         try:
-            text = super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs + "\n" + members
-            
-            for member in self.assignedMembers:
-                text += "\n\t" + member
-        except:
-            pass
-    
-        return text
+            parts = [
+                super().__str__() + ", " + rs + ", " + r + ", " + worked + "%, " + avg + ": " + hrs,
+                members
+            ]
+            parts.extend(f"\t{member}" for member in self.assignedMembers)
+            return "\n".join(parts)
+        except Exception as e:
+            # Log the exception if needed
+            return super().__str__()
 
     ##
     # Add a member to this team

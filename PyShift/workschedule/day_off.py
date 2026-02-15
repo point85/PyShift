@@ -1,5 +1,5 @@
-from PyShift.workschedule.time_period import TimePeriod
 from datetime import timedelta, time
+from .time_period import TimePeriod
 
 ##
 # Class DayOff represents a scheduled non-working period

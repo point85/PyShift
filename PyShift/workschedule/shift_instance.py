@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 #from PyShift.workschedule.team import Team
-from PyShift.workschedule.shift import Shift
-from PyShift.workschedule.localizer import Localizer
+from .shift import Shift
+from .localizer import Localizer
 
 if TYPE_CHECKING:
-    from PyShift.workschedule.team import Team
+    from .team import Team
 
 ##
 # Class ShiftInstance is an instance of a {@link Shift}. A shift instance is

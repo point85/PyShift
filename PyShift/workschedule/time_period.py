@@ -1,8 +1,8 @@
 from datetime import datetime, date, time, timedelta
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_exception import PyShiftException 
-from PyShift.workschedule.shift_utils import ShiftUtils
+from .named import Named
+from .localizer import Localizer
+from .shift_exception import PyShiftException 
+from .shift_utils import ShiftUtils
 
 ##
 # Class TimePeriod is a named period of time with a specified duration and

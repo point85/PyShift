@@ -1,5 +1,5 @@
 from datetime import time, timedelta
-from PyShift.workschedule.time_period import TimePeriod
+from .time_period import TimePeriod
 
 ##
 # Class Break is a defined working period of time during a shift, for example lunch.

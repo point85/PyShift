@@ -1,8 +1,7 @@
-
 from datetime import datetime, date, timedelta
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift_exception import PyShiftException
+from .named import Named
+from .localizer import Localizer
+from .shift_exception import PyShiftException
 
 ##
 # Class NonWorkingPeriod represents named non-working, non-recurring periods.
@@ -60,7 +59,7 @@ class NonWorkingPeriod(Named):
         start = Localizer.instance().messageStr("period.start")
         end = Localizer.instance().messageStr("period.end")
 
-        return super().__str__() + ", " + start + ": " + str(self.startDateTime) + " (" + str(self.duration) + ")" + ", " + end + ": " + str(self.getEndDateTime())
+        return f"{super().__str__()}, {start}: {self.startDateTime} ({self.duration}), {end}: {self.getEndDateTime()}"
     
     ##
     # Compare two non-working periods

@@ -1,14 +1,15 @@
 from datetime import date, time, datetime, timedelta
 from operator import attrgetter
+from typing import List
 
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.localizer import Localizer
-from PyShift.workschedule.shift import Shift
-from PyShift.workschedule.team import Team
-from PyShift.workschedule.rotation import Rotation
-from PyShift.workschedule.non_working_period import NonWorkingPeriod
-from PyShift.workschedule.shift_exception import PyShiftException
-from PyShift.workschedule.shift_utils import ShiftUtils
+from .named import Named
+from .localizer import Localizer
+from .shift import Shift
+from .team import Team
+from .rotation import Rotation
+from .non_working_period import NonWorkingPeriod
+from .shift_exception import PyShiftException
+from .shift_utils import ShiftUtils
 
 ##
 # Class WorkSchedule represents a named group of teams who collectively work
@@ -63,7 +64,7 @@ class WorkSchedule(Named):
     # @param day
     #            date
     # @return list of {@link ShiftInstance}
-    def getShiftInstancesForDay(self, day: date) -> []:
+    def getShiftInstancesForDay(self, day: date) -> List['ShiftInstance']:
         workingShifts = []
 
         # for each team see if there is a working shift
@@ -95,7 +96,7 @@ class WorkSchedule(Named):
     # @param dateTime
     #            Date and time of day
     # @return List of {@link ShiftInstance}
-    def getShiftInstancesForTime(self, dateTime: datetime) -> []:
+    def getShiftInstancesForTime(self, dateTime: datetime) -> List['ShiftInstance']:
         workingShifts = []
 
         # day
@@ -362,43 +363,34 @@ class WorkSchedule(Named):
         sn = Localizer.instance().messageStr("schedule.non")
         stn = Localizer.instance().messageStr("schedule.total")
 
-        text = sch + ": " + super().__str__() + "\n" + rd  + ", " + sw 
+        parts = [sch + ": " + super().__str__(), rd  + ", " + sw]
 
         # shifts
-        text = text + "\n" + sf + ": "
-        count = 1
-        for shift in self.shifts:
-            text = text + "\n   (" + str(count) + ") " + str(shift)
-            count = count + 1
+        if self.shifts:
+            parts.append(sf + ":")
+            parts.extend(f"   ({i + 1}) {shift}" for i, shift in enumerate(self.shifts))
                 
         # teams
-        text = text + "\n" + st + ": "
-        count = 1
-        teamPercent = 0.0
+        if self.teams:
+            parts.append(st + ":")
+            teamPercent = 0.0
+            for i, team in enumerate(self.teams):
+                parts.append(f"   ({i + 1}) {team}")
+                teamPercent += team.getPercentageWorked()
             
-        for team in self.teams:
-            text = text + "\n   (" + str(count) + ") " + str(team)
-            teamPercent = teamPercent + team.getPercentageWorked()
-            count = count + 1
-        
-        fmtTeam = ": %.2f" % teamPercent
-        text = text + "\n" + sc + ": " + fmtTeam + "%"
+            parts.append(f"{sc}: {teamPercent:.2f}%")
 
         # non-working periods
         periods = self.nonWorkingPeriods
 
-        if (len(periods) > 0):
-            text = text + "\n" + sn + ":"
-
+        if periods:
+            parts.append(sn + ":")
             totalMinutes = timedelta()
 
-            count = 1
-            for period in periods:
-                totalMinutes = totalMinutes + period.duration
-                text = text + "\n   (" + str(count) + ") " + str(period)
-                count = count + 1
+            for i, period in enumerate(periods):
+                totalMinutes += period.duration
+                parts.append(f"   ({i + 1}) {period}")
             
-            text = text + "\n" + stn + ": " + str(totalMinutes)
+            parts.append(f"{stn}: {totalMinutes}")
 
-
-        return text
+        return "\n".join(parts)

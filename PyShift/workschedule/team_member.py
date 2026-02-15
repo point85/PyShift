@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
-from PyShift.workschedule.named import Named
-from PyShift.workschedule.localizer import Localizer
+from .named import Named
+from .localizer import Localizer
 
 
 # #
@@ -23,13 +24,11 @@ class TeamMember(Named):
     def __str__(self) -> str:
         ident = Localizer.instance().messageStr("member.id")
 
-        text = ""
         try:
-            text = super().__str__() + ", " + ident + ": " + self.memberID
-        except:
-            pass
-    
-        return text   
+            return f"{super().__str__()}, {ident}: {self.memberID}"
+        except Exception as e:
+            # Log the exception if needed
+            return super().__str__()   
 
 # #
 # This class provides information for adding or removing a team member for a
@@ -45,13 +44,13 @@ class TeamMemberException:
         self.shiftStart: datetime = shiftStart
         
         # team member to add 
-        self.addition: TeamMember = None
+        self.addition: Optional[TeamMember] = None
         
         # team member to remove
-        self.removal: TeamMember = None
+        self.removal: Optional[TeamMember] = None
         
         # reason for the change
-        self.reason: str = None  
+        self.reason: Optional[str] = None  
         
     def setAddition(self, member: TeamMember, reason: str = None):
         """Set the team member to add"""

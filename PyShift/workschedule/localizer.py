@@ -1,5 +1,6 @@
 import locale
 import gettext
+import os
 
 ##
 # The Localizer class provides localization services for work schedule user-visible text as well as for error messages.
@@ -7,7 +8,7 @@ import gettext
 #
 class Localizer:  
     # root folder 
-    localePath = "locales"
+    localePath = os.path.join(os.path.dirname(__file__), "locales")
      
     # single instance
     singleton = None

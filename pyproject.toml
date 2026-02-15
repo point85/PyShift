@@ -3,17 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["PyShift/workschedule"]
+packages = ["PyShift"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [".settings", ".project", ".pydevproject", "README.md"]
 
 [project]
-name = "PyWorkShift"
-version = "1.1.2"
+name = "PyShift"
+version = "1.2.0"
 keywords = ["shift", "work schedule", "shift calendar", "work calendar"]
 authors = [
-  { name="Kent Randall", email="point85.llc@gmail.com" },
+  { name="Kent Randall", email="point85.apps@gmail.com" },
 ]
 description = "A work schedule library for shifts."
 readme = "README_PyPI.md"
