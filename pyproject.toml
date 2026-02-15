@@ -9,7 +9,7 @@ packages = ["PyShift"]
 exclude = [".settings", ".project", ".pydevproject", "README.md"]
 
 [project]
-name = "PyShift"
+name = "PyWorkShift"
 version = "1.2.0"
 keywords = ["shift", "work schedule", "shift calendar", "work calendar"]
 authors = [
